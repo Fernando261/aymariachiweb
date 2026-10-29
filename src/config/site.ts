@@ -1,0 +1,22 @@
+/**
+ * CONFIGURACIÓN CENTRAL: agrega aquí las cuentas OFICIALES de la empresa.
+ * Dejar un valor vacío desactiva ese enlace para no enviar visitantes
+ * a perfiles equivocados ni inventar datos de contacto.
+ */
+export const company = {
+  name: 'Ay! Mariachi Para Todos',
+  city: 'Guadalajara, Jalisco',
+  whatsappNumber: '', // Ejemplo de formato: 5213312345678 (sin + ni espacios)
+  instagram: 'https://www.instagram.com/aymariachiparatodos/',
+  facebook: 'https://www.facebook.com/profile.php?id=61595880183603',
+  tiktok: 'https://www.tiktok.com/@aymariachiparatodos',
+  email: 'aymariachiparatodos@gmail.com',
+  appUrl: '', // URL de la app cuando esté publicada
+} as const;
+
+export function whatsAppUrl() {
+  if (!company.whatsappNumber.trim()) return '';
+  const number = company.whatsappNumber.replace(/\D/g, '');
+  const message = encodeURIComponent('¡Hola! Me gustaría conocer las opciones de mariachi para mi evento.');
+  return `https://wa.me/${number}?text=${message}`;
+}
