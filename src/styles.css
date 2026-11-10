@@ -558,6 +558,10 @@ section { scroll-margin-top: 76px; }
   }
 }
 
-.brand__logo { width: 138px; height: auto; display: block; object-fit: contain; }
+/* Encuadre del dibujo (aprox. x435–1055, y260–680) en el PNG 1536×1024.
+   Solo se oculta el margen transparente: el archivo y su proporción no cambian. */
+.brand { position: relative; display: block; width: 112px; aspect-ratio: 620 / 420; overflow: hidden; }
+.brand__logo { position: absolute; width: 247.741935%; max-width: none; height: auto; left: -70.16129%; top: -61.904762%; display: block; }
 .footer-brand img { width: 220px; height: auto; margin: 0; object-fit: contain; }
-@media (max-width: 660px) { .brand__logo { width: 110px; } }
+@media (max-width: 900px) { .brand { width: 106px; } }
+@media (max-width: 660px) { .brand { width: 96px; } }
