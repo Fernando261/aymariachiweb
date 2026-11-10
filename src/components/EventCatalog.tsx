@@ -22,8 +22,8 @@ export default function EventCatalog({ category, onCategoryChange }: {
   const [duration, setDuration] = useState('');
   const detailTitle = useRef<HTMLHeadingElement>(null);
   const optionButtons = useRef(new Map<string, HTMLButtonElement>());
-  const isDemo = new URLSearchParams(window.location.search).get('demo') === '1';
-  const catalog = isDemo ? demoMariachis : mariachis;
+  const usingExamples = mariachis.length === 0;
+  const catalog = usingExamples ? demoMariachis : mariachis;
   const visible = catalog.filter((item) => item.active && item.musicianCounts.length > 0 &&
     (!category || item.categories.includes(category)));
   const selected = visible.find((item) => item.code === selectedCode);
@@ -37,12 +37,14 @@ export default function EventCatalog({ category, onCategoryChange }: {
   const message = selected ? [
     '¡Hola! Me gustaría solicitar una presentación de mariachi.',
     `Categoría: ${occasionLabel ?? ''}`,
-    `Mariachi: ${selected.alias} (${selected.code})`,
+    usingExamples
+      ? `Referencia ilustrativa: ${selected.alias} (ejemplo)`
+      : `Mariachi: ${selected.alias} (${selected.code})`,
     `Músicos: ${musicians}`,
     ...(duration ? [`Duración: ${duration} minutos`] : []),
     'Quisiera consultar disponibilidad y organizar los detalles.',
   ].join('\n') : '';
-  const contactUrl = isDemo ? '' : buildWhatsAppUrl(company.whatsappNumber, message);
+  const contactUrl = buildWhatsAppUrl(company.whatsappNumber, message);
   const canRequest = !!selected && !!occasion && selected.categories.includes(occasion) && validMusicians && validDuration && !!contactUrl;
 
   const reset = () => { setSelectedCode(null); setMusicians(''); setDuration(''); setRequestCategory(''); };
@@ -53,16 +55,16 @@ export default function EventCatalog({ category, onCategoryChange }: {
   return (
     <div className="catalog" aria-labelledby="catalog-title">
       <h3 id="catalog-title" tabIndex={-1}>Encuentra tu mariachi</h3>
-      {isDemo && <p className="catalog-demo"><strong>Catálogo de prueba</strong><br />Los perfiles y datos son de ejemplo. Las fotos son ilustrativas.</p>}
+      {usingExamples && <p className="catalog-demo"><strong>Perfiles de ejemplo</strong><br />Las fotos son ilustrativas. La empresa confirma los grupos disponibles por WhatsApp.</p>}
       <div className="catalog-filters" role="group" aria-label="Filtrar por ocasión">
         <button type="button" aria-pressed={category === null} onClick={() => { reset(); onCategoryChange(null); }}>Todas</button>
         {categories.map((item) => <button type="button" key={item.id} aria-pressed={category === item.id} onClick={() => { reset(); onCategoryChange(item.id); }}>{item.label}</button>)}
       </div>
       <p role="status">{categoryLabel ?? 'Todas las ocasiones'} · {visible.length} {visible.length === 1 ? 'opción' : 'opciones'}</p>
-      {!isDemo && !contactUrl && <p role="status">Las solicitudes por WhatsApp aún no están disponibles. Puedes usar nuestros otros <a href="#contacto">medios de contacto</a>.</p>}
+      {!contactUrl && <p role="status">Las solicitudes por WhatsApp aún no están disponibles.</p>}
       {!selected ? (
         visible.length ? <ul className="catalog-list">{visible.map((item) => <li key={item.code} className="catalog-card">
-          <CatalogPhoto mariachi={item} illustrative={isDemo} />
+          <CatalogPhoto mariachi={item} illustrative={usingExamples} />
           <h4>{item.alias}</h4>
           {item.description && <p>{item.description}</p>}
           {item.zone && <p>Zona: {item.zone}</p>}
@@ -74,7 +76,7 @@ export default function EventCatalog({ category, onCategoryChange }: {
         <div className="catalog-card">
           <button type="button" className="catalog-back" onClick={() => { const code = selected.code; reset(); requestAnimationFrame(() => optionButtons.current.get(code)?.focus()); }}>Volver al listado</button>
           <h4 ref={detailTitle} tabIndex={-1}>{selected.alias}</h4>
-          <CatalogPhoto mariachi={selected} illustrative={isDemo} />
+          <CatalogPhoto mariachi={selected} illustrative={usingExamples} />
           {selected.description && <p>{selected.description}</p>}
           {selected.zone && <p>Zona: {selected.zone}</p>}
           {!category && <label>Tipo de ocasión<select value={requestCategory} onChange={(event) => setRequestCategory(event.target.value as Category | '')}><option value="">Elige la ocasión</option>{categories.filter((item) => selected.categories.includes(item.id)).map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>}
@@ -84,9 +86,7 @@ export default function EventCatalog({ category, onCategoryChange }: {
             <h5>Resumen de tu solicitud</h5>
             <dl><dt>Categoría</dt><dd>{occasionLabel || 'Por elegir'}</dd><dt>Mariachi</dt><dd>{selected.alias} · {selected.code}</dd><dt>Músicos</dt><dd>{musicians || 'Por elegir'}</dd><dt>Duración</dt><dd>{duration ? `${duration} minutos` : 'Por acordar en WhatsApp'}</dd></dl>
           </div>
-          <p id="request-help">{isDemo
-            ? 'El envío está deshabilitado en esta demostración. Las solicitudes reales se gestionan por el WhatsApp de la empresa.'
-            : 'Elige la ocasión y la cantidad de músicos para continuar. La fecha, dirección y demás detalles se acuerdan en WhatsApp. Allí revisarás el mensaje y confirmarás su envío.'}</p>
+          <p id="request-help">Elige la ocasión y la cantidad de músicos para continuar. La fecha, dirección y demás detalles se acuerdan por WhatsApp con la empresa. Allí revisarás el mensaje y confirmarás su envío.</p>
           {canRequest ? <a className="button button--gold" href={contactUrl} target="_blank" rel="noopener noreferrer" aria-describedby="request-help"><WhatsAppIcon /> Enviar solicitud</a> : <button className="button button--gold" type="button" disabled aria-describedby="request-help"><WhatsAppIcon /> Enviar solicitud</button>}
         </div>
       )}

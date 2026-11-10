@@ -20,5 +20,5 @@ export type Mariachi = {
   durationMinutes?: readonly number[];
 };
 
-// Sin opciones aprobadas todavía. Los datos ficticios viven únicamente en tests/.
+// Catálogo de grupos aprobados. Mientras esté vacío se muestran referencias ilustrativas.
 export const mariachis: readonly Mariachi[] = [];
