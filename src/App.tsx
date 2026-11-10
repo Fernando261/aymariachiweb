@@ -1,40 +1,37 @@
 import { useEffect, useState } from 'react';
 import {
-  ArrowDown, ArrowRight, ArrowUpRight, CalendarHeart, Check, ChevronRight,
+  ArrowDown, ArrowRight, ArrowUpRight, CalendarHeart, ChevronRight,
   Facebook, Heart, Instagram, Menu, MessageCircle, Music2,
   Sparkles as SparklesIcon, Star, X,
 } from 'lucide-react';
 import MariachiScene from './components/MariachiScene';
-import AppShowcase from './components/AppShowcase';
+import EventCatalog from './components/EventCatalog';
+import { type Category } from './config/mariachis';
 import { usePageMotion, useReducedMotion } from './components/Motion';
 import { company, whatsAppUrl } from './config/site';
+
+const logoUrl = `${import.meta.env.BASE_URL}logo-ay-mariachi.png`;
 
 type Social = { name: string; caption: string; url: string; icon: typeof Instagram; number: string };
 const experiences = [
   {
-    number: '01', label: 'El detalle perfecto', title: 'Serenatas',
+    category: 'serenatas' as const, number: '01', label: 'El detalle perfecto', title: 'Serenatas',
     body: 'Hay sentimientos que una canción dice mejor. Convierte una sorpresa en un recuerdo para siempre.',
     icon: Heart,
     photo: 'https://images.unsplash.com/photo-1745470419655-51d01b00f22a?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    number: '02', label: 'Momentos que se celebran', title: 'Celebraciones',
+    category: 'celebraciones' as const, number: '02', label: 'Momentos que se celebran', title: 'Celebraciones',
     body: 'Cumpleaños, aniversarios y reuniones que merecen una banda sonora tan especial como su historia.',
     icon: SparklesIcon,
     photo: 'https://images.unsplash.com/photo-1769230367203-7bd409f483c9?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    number: '03', label: 'Una ocasión extraordinaria', title: 'Eventos especiales',
+    category: 'especiales' as const, number: '03', label: 'Una ocasión extraordinaria', title: 'Eventos especiales',
     body: 'Bodas, pedidas de mano y grandes encuentros con el alma y la energía de nuestra tradición.',
     icon: CalendarHeart,
     photo: 'https://images.unsplash.com/photo-1769230367366-13ed92feb145?auto=format&fit=crop&w=1200&q=80',
   },
-];
-
-const steps = [
-  { id: '01', title: 'Imagina tu momento', text: 'Cuéntanos qué quieres celebrar y cómo te gustaría vivirlo.' },
-  { id: '02', title: 'Encuentra tu mariachi', text: 'Una experiencia digital pensada para explorar opciones y elegir músicos.' },
-  { id: '03', title: 'Que empiece la música', text: 'Convierte tu plan en una experiencia con auténtico sabor mexicano.' },
 ];
 
 function Ornament({ className = '' }: { className?: string }) {
@@ -70,6 +67,8 @@ export default function App() {
   const root = usePageMotion(reducedMotion);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [category, setCategory] = useState<Category | null>(null);
+  const [catalogVisit, setCatalogVisit] = useState(0);
   const whatsApp = whatsAppUrl();
   const socials: Social[] = [
     { name: 'Instagram', caption: 'Síguenos e inspírate', url: company.instagram, icon: Instagram, number: '01' },
@@ -100,13 +99,12 @@ export default function App() {
       <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
         <nav className="nav container" aria-label="Navegación principal">
           <a className="brand" href="#inicio" onClick={closeMenu} aria-label="Ay! Mariachi Para Todos, ir al inicio">
-            <span className="brand__icon">A<span>!</span></span>
-            <span className="brand__words"><strong>AY! MARIACHI</strong><small>PARA TODOS</small></span>
+            <img className="brand__logo" src={logoUrl} alt="Ay! Mariachi Para Todos" width="1536" height="1024" />
           </a>
           <div className={`nav-links ${menuOpen ? 'is-open' : ''}`} id="nav-principal">
             <a href="#nosotros" onClick={closeMenu}>Nosotros</a>
             <a href="#experiencias" onClick={closeMenu}>Experiencias</a>
-            <a href="#app" onClick={closeMenu}>Nuestra app</a>
+            <a href="#guia" onClick={closeMenu}>Guía para tu evento</a>
             <a href="#contacto" onClick={closeMenu} className="mobile-contact">Contáctanos</a>
           </div>
           <a className="nav-cta" href="#contacto">Hablemos <ArrowUpRight size={16} /></a>
@@ -169,7 +167,7 @@ export default function App() {
               <div className="about-visual__frame">
                 <span className="about-visual__corner about-visual__corner--tl" />
                 <span className="about-visual__corner about-visual__corner--br" />
-                <img src="/logo-ay-mariachi.png" alt="Logo oficial dorado de Ay! Mariachi Para Todos" className="about-logo" loading="lazy" />
+                <img src={logoUrl} alt="Logo oficial dorado de Ay! Mariachi Para Todos" className="about-logo" loading="lazy" />
                 <span className="about-visual__signature">NUESTRAS RAÍCES · NUESTRA PASIÓN</span>
               </div>
               <div className="about-visual__floating"><Star size={19} fill="currentColor" /><span>TRADICIÓN<br />QUE CONECTA</span></div>
@@ -184,7 +182,7 @@ export default function App() {
                 <div><span className="about-values__icon"><Heart size={20} /></span><span><strong>Corazón mexicano</strong><small>Autenticidad en cada nota</small></span></div>
                 <div><span className="about-values__icon"><SparklesIcon size={20} /></span><span><strong>Una nueva forma de conectar</strong><small>Tradición que mira al futuro</small></span></div>
               </div>
-              <a href="#app" className="inline-link">Conoce nuestra visión <ArrowUpRight size={17} /></a>
+              <a href="#guia" className="inline-link">Prepara tu evento <ArrowUpRight size={17} /></a>
             </div>
           </div>
         </section>
@@ -200,7 +198,11 @@ export default function App() {
               {experiences.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <a className="experience-card" key={item.number} href="#contacto" data-reveal>
+                  <a className="experience-card" key={item.number} href="#guia" onClick={() => {
+                    setCategory(item.category);
+                    setCatalogVisit((visit) => visit + 1);
+                    requestAnimationFrame(() => document.getElementById('catalog-title')?.focus());
+                  }} data-reveal>
                     <div className="experience-card__image" style={{ backgroundImage: `linear-gradient(180deg, rgba(12,9,8,.08), rgba(8,7,7,.85)), url('${item.photo}')` }}>
                       <span className="experience-card__number">{item.number} / 03</span>
                       <span className="experience-card__icon"><Icon size={23} strokeWidth={1.5} /></span>
@@ -229,21 +231,18 @@ export default function App() {
           </div>
         </section>
 
-        {/* APP EN DESARROLLO */}
-        <section className="section app-section" id="app" aria-labelledby="app-title">
-          <div className="container app-grid">
-            <div className="app-copy" data-reveal>
-              <p className="section-kicker">03 / LA TRADICIÓN EVOLUCIONA</p>
+        {/* GUÍA Y CATÁLOGO */}
+        <section className="section guide-section" id="guia" aria-labelledby="guide-title">
+          <div className="container guide-grid">
+            <div className="guide-copy" data-reveal>
+              <p className="section-kicker">03 / PREPARA TU MOMENTO</p>
               <Ornament className="ornament--left" />
-              <h2 className="section-title" id="app-title">La magia del mariachi, <em>a unos toques de ti.</em></h2>
-              <p className="section-body">Estamos desarrollando una aplicación que hará más sencillo descubrir opciones de mariachi y planear el acompañamiento musical de tus momentos especiales.</p>
-              <div className="app-status"><span className="app-status__dot" /> NUESTRA APP ESTÁ EN DESARROLLO</div>
-              <div className="app-steps">
-                {steps.map((step) => <div className="app-step" key={step.id}><span>{step.id}</span><div><h3>{step.title}</h3><p>{step.text}</p></div><Check size={17} /></div>)}
-              </div>
-              {company.appUrl ? <a className="button button--outline" href={company.appUrl} target="_blank" rel="noopener noreferrer">Explorar la app <ArrowUpRight size={18} /></a> : <a className="button button--outline" href="#contacto">Quiero saber más <ArrowUpRight size={18} /></a>}
+              <h2 className="section-title" id="guide-title">Guía para <em>tu evento.</em></h2>
+              <p className="section-body">Cada celebración tiene su propio ritmo. Piensa en la ocasión, el espacio y el estilo que imaginas para elegir el acompañamiento musical de tu momento.</p>
+              <p className="section-body">Explora las opciones por ocasión y prepara tu solicitud. La disponibilidad y los detalles de tu evento se confirman en WhatsApp.</p>
+              <a className="button button--outline" href="#contacto">Hablemos de tu evento <ArrowUpRight size={18} /></a>
             </div>
-            <AppShowcase reducedMotion={reducedMotion} />
+            <EventCatalog key={catalogVisit} category={category} onCategoryChange={setCategory} />
           </div>
         </section>
 
@@ -271,10 +270,10 @@ export default function App() {
         <div className="footer__top-border" aria-hidden="true" />
         <div className="container footer-main">
           <div className="footer-brand">
-            <img src="/logo-ay-mariachi.png" alt="Ay! Mariachi Para Todos" loading="lazy" />
+            <img src={logoUrl} alt="Ay! Mariachi Para Todos" loading="lazy" />
             <p>La tradición que nos une.<br />La música que nos mueve.</p>
           </div>
-          <div className="footer-column"><h3>EXPLORA</h3><a href="#inicio">Inicio <ChevronRight size={14} /></a><a href="#nosotros">Nuestra esencia <ChevronRight size={14} /></a><a href="#experiencias">Experiencias <ChevronRight size={14} /></a><a href="#app">La app <ChevronRight size={14} /></a></div>
+          <div className="footer-column"><h3>EXPLORA</h3><a href="#inicio">Inicio <ChevronRight size={14} /></a><a href="#nosotros">Nuestra esencia <ChevronRight size={14} /></a><a href="#experiencias">Experiencias <ChevronRight size={14} /></a><a href="#guia">Guía para tu evento <ChevronRight size={14} /></a></div>
           <div className="footer-column"><h3>HABLEMOS</h3><a href="#contacto">Contacto <ChevronRight size={14} /></a>{whatsApp && <a href={whatsApp} target="_blank" rel="noopener noreferrer">WhatsApp <ChevronRight size={14} /></a>}{company.instagram && <a href={company.instagram} target="_blank" rel="noopener noreferrer">Instagram <ChevronRight size={14} /></a>}<span>Guadalajara, Jalisco, México</span></div>
           <div className="footer-quote"><span>✦</span><p>Que nunca falte una canción para celebrar la vida.</p></div>
         </div>

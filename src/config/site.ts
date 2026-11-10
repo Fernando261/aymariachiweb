@@ -11,12 +11,14 @@ export const company = {
   facebook: 'https://www.facebook.com/profile.php?id=61595880183603',
   tiktok: 'https://www.tiktok.com/@aymariachiparatodos',
   email: 'aymariachiparatodos@gmail.com',
-  appUrl: '', // URL de la app cuando esté publicada
 } as const;
 
+export function buildWhatsAppUrl(number: string, message: string) {
+  const digits = number.replace(/\D/g, '');
+  if (!digits) return '';
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+
 export function whatsAppUrl() {
-  if (!company.whatsappNumber.trim()) return '';
-  const number = company.whatsappNumber.replace(/\D/g, '');
-  const message = encodeURIComponent('¡Hola! Me gustaría conocer las opciones de mariachi para mi evento.');
-  return `https://wa.me/${number}?text=${message}`;
+  return buildWhatsAppUrl(company.whatsappNumber, '¡Hola! Me gustaría conocer las opciones de mariachi para mi evento.');
 }

@@ -1,6 +1,6 @@
 # ¡Ay! Mariachi Para Todos — Sitio web oficial
 
-Landing page premium y responsive para presentar **Ay! Mariachi Para Todos** como empresa. Proyecto web **independiente** de la aplicación móvil; puede publicarse con dominio propio y enlazar la app cuando esté lista.
+Landing page premium y responsive para presentar **Ay! Mariachi Para Todos** como empresa. Incluye una guía para preparar eventos y canales de contacto.
 
 ## Tecnología
 
@@ -42,13 +42,7 @@ ay-mariachi-web/
 ├── README.md
 ├── public/
 │   ├── favicon.svg                     # Identidad visual en pestaña
-│   ├── logo-ay-mariachi.png            # Tu logo original recortado y con transparencia
-│   └── app-screens/                    # Capturas reales optimizadas y anonimizadas
-│       ├── bienvenida.webp
-│       ├── acceso.webp
-│       ├── inicio.webp
-│       ├── eventos.webp
-│       └── perfil.webp
+│   └── logo-ay-mariachi.png            # Logo de bienvenida oficial, sin modificaciones
 └── src/
     ├── main.tsx                        # Punto de entrada de React
     ├── App.tsx                         # Todas las secciones / interacciones de la web
@@ -56,7 +50,7 @@ ay-mariachi-web/
     ├── config/
     │   └── site.ts                     # ÚNICO LUGAR para configurar redes y contacto
     └── components/
-        ├── AppShowcase.tsx             # Carrusel con 5 capturas reales y Anime.js
+        ├── EventCatalog.tsx            # Catálogo, selección y solicitud por WhatsApp
         ├── MariachiScene.tsx           # Trompeta 3D en React Three Fiber
         └── Motion.tsx                  # Anime.js + detección de movimiento reducido
 ```
@@ -68,7 +62,6 @@ Edita **`src/config/site.ts`** y rellena los valores de `whatsappNumber`, `insta
 - `whatsappNumber` debe ser un número con indicativo internacional, **solo dígitos**, por ejemplo `5213312345678` (solo ejemplo ficticio; no lo uses en producción).
 - Las redes deben llevar **las URLs reales y oficiales** de la empresa.
 - Los contactos que estén vacíos se muestran como tarjetas no clicables y se indica que están pendientes; nunca enviarán a perfiles inventados.
-- Si la app se publica, agrega la URL final a `appUrl`.
 
 ## Reemplazar la trompeta por una escena hecha en Spline (opcional)
 
@@ -123,18 +116,67 @@ Usa una escena que hayas creado o cuya licencia permita reutilización, y conser
 - Fotografías ilustrativas de Alan Morales y Fotógrafo Samuel Cruz, publicadas bajo la licencia de Unsplash, con atribución visible en el sitio. **No presentan músicos necesariamente afiliados a la empresa**.
 - El nombre, la identidad dorada y el logo fueron aportados por el solicitante.
 - Los textos son propuestas editoriales que se pueden ajustar; no incluyen cifras de ventas, clientes o logros no confirmados.
-- El escaparate contiene **capturas reales** de la app proporcionadas por el desarrollador. Las imágenes de Eventos y Perfil se han **anonimizado** para evitar mostrar un nombre personal, fechas y direcciones en una web pública.
-- Son imágenes de una **versión en desarrollo**; los datos y el comportamiento de la app están sujetos a cambios.
 
-## Nota de revisión
+## Catálogo manual y solicitudes (W3)
 
-El código TypeScript/TSX pasó una comprobación sintáctica local y se comprobó que las cinco imágenes y el CSS están bien formados. No se pudo realizar un build completo en este entorno, porque la instalación de dependencias con npm agotó el tiempo de conexión. En tu computadora ejecuta `npm install` y después `npm run build` para realizar la verificación completa.
+Las tarjetas Serenatas, Celebraciones y Eventos especiales llevan a `#guia`, enfocan el título del catálogo y aplican el filtro. Los botones de categoría señalan la opción activa y «Todas» recupera el listado completo. Tras elegir un grupo se muestran sus cantidades admitidas, las duraciones disponibles si las hay y un resumen. «Volver al listado» devuelve el foco al grupo. Cambiar la categoría o el grupo limpia las elecciones; volver a pulsar una tarjeta de Experiencias también vuelve al listado filtrado.
 
-## Personalizar el escaparate de la app (actualizado)
+### Agregar opciones aprobadas
 
-La sección **Nuestra app** muestra dos móviles inclinados con capturas reales y una navegación de 5 pantallas. Empieza por **Inicio**, después avanza automáticamente cada 6,5 s cuando está visible. El avance se detiene al interactuar con el carrusel, y respeta `prefers-reduced-motion`. En móvil también permite deslizar horizontalmente sobre los teléfonos.
+Edita `src/config/mariachis.ts`. El arreglo `mariachis` está vacío a propósito: aún no se han proporcionado opciones públicas aprobadas. No publiques los fixtures de `tests/catalog-fixtures.ts`.
 
-- Para reemplazar una captura, guarda la nueva imagen en `public/app-screens/` y cambia su `src` en el arreglo `screens` dentro de **`src/components/AppShowcase.tsx`**.
-- Para editar títulos y descripciones del carrusel, cambia `title` y `description` en el mismo arreglo.
-- El diseño, tamaños y transiciones están separados en **`src/styles.css`** bajo el comentario `CAPTURAS REALES`.
-- Antes de incluir nuevas capturas en una web pública, oculta nombres, teléfonos, direcciones y eventos privados. Las cinco imágenes WebP del proyecto son las versiones públicas; **los archivos JPG privados originales no se incluyen**.
+Cada objeto debe cumplir el tipo `Mariachi`:
+
+| Campo | Configuración |
+| --- | --- |
+| `code` | Código público único y estable; no lo reutilices para otro grupo. |
+| `alias` | Alias público con el formato `Mariachi #…`. Nunca el nombre real. |
+| `categories` | Una o más de `serenatas`, `celebraciones`, `especiales`. |
+| `musicianCounts` | Cantidades de músicos aprobadas, enteros positivos sin duplicados. No dejes vacío un grupo disponible. |
+| `active` | `true` para mostrarlo; `false` lo oculta de todos los filtros. |
+| `zone` | Opcional: solo zona de servicio pública aprobada, nunca dirección privada. |
+| `photo` | Opcional: ruta relativa a `public/`, sin barra inicial; imagen autorizada sin datos privados. Se aplica la base de Vite. |
+| `durationMinutes` | Opcional: duraciones aprobadas en minutos, enteros positivos sin duplicados. Si falta o está vacío, no aparece selector. |
+
+No se hacen consultas a servicios, no hay registro de clientes ni persistencia de solicitudes. Este catálogo es estático y manual; actualizarlo requiere una nueva compilación. Mantén los nombres reales y los datos privados fuera del repositorio.
+
+### WhatsApp
+
+Configura únicamente el número oficial en `company.whatsappNumber` de `src/config/site.ts` (indicativo internacional, solo dígitos). Si sigue vacío, la solicitud permanece deshabilitada y el sitio indica otros medios de contacto. Los enlaces generales de contacto conservan su mensaje original.
+
+El mensaje de solicitud incluye categoría, alias y código públicos, cantidad de músicos y duración si se eligió. Se codifica con `encodeURIComponent` para conservar acentos y saltos de línea. Desde «Todas» se elige también una ocasión admitida por el grupo. La duración se puede dejar por acordar. El botón abre WhatsApp en otra pestaña: el visitante revisa y confirma allí el envío. La fecha, la dirección, el nombre del cliente y la organización se tratan únicamente en WhatsApp.
+
+### Pruebas reproducibles
+
+```sh
+npm ci
+npm run build
+npx playwright install chromium
+npm run test:e2e
+git diff --check
+```
+
+Si Chromium ya está instalado, usa `CHROMIUM_PATH=/ruta/a/chromium npm run test:e2e`. Las pruebas levantan Vite en 4180 y los previews de `dist/` en 4181 (raíz) y 4182 (montaje bajo `/aymariachiweb/`). Los fixtures se inyectan solo mediante interceptación de módulos en el navegador de pruebas contra Vite; el build publicado mantiene el catálogo real vacío y el número oficial sin configurar. Ninguna prueba envía solicitudes ni abre WhatsApp. No se requiere instalar navegadores para compilar la web.
+
+### Validación ejecutada de W3
+
+- `npm ci --cache /tmp/aymariachi-npm-cache`, `npm run build` y `git diff --check`: correctos. Vite conserva el aviso previo de tamaño del bundle.
+- `CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e`: **7 pruebas correctas**. El build real se probó vacío en `/` y `/aymariachiweb/`; los fixtures aislados verificaron filtros, inactivos, cambio de grupo/categoría, regreso al listado, cantidades, duraciones, resumen, mensaje exacto codificado, ausencia de número y enlaces de contacto existentes.
+- Interacción táctil emulada a 320 y 390 px, escritorio a 1440 px y teclado (Enter, Espacio, Tab y selectores). Sin desbordamiento horizontal en los tres anchos. Capturas del flujo con fixtures revisadas localmente a 390 y 1440 px.
+- Se comprobó que ni los códigos ni el número ficticio de las pruebas aparecen en `dist/`.
+- Pendientes: revisión independiente de Alex, teléfono físico, lector de pantalla y apertura real de WhatsApp con número oficial. No se abrió WhatsApp ni se envió ningún mensaje. El catálogo seguirá vacío y las solicitudes deshabilitadas hasta configurar datos aprobados y el número oficial.
+
+### Base de W3
+
+W2 (PR #2) seguía abierto al iniciar W3. La rama `codex/web-w3-catalogo-whatsapp` parte de la versión revisada `0a98794bbbc7e73a9fd28654fe953714088b45de` de `codex/web-w2-logo-y-guia`; esa misma rama es la base del PR para aislar W3. Alex conserva la integración y publicación.
+
+## Base y procedencia de W2
+
+- `origin/main`: `20b09d6ef093d5a42b0d5c8b0837ceca14e38d76` al iniciar.
+- PR #1 abierto, en borrador y sin integrar: W2 parte de `codex/web-w1-rutas-recursos`, commit `dbad9a16b7b82b4e025e8ffce930fb6bea6a5254`.
+- Rama W2: `codex/web-w2-logo-y-guia`; base del PR: `codex/web-w1-rutas-recursos`, para mostrar únicamente W2.
+- Logo copiado sin modificar desde `Fernando261/aymariachiparatodos`, commit `75eaa5f50a3bf57a5fa7cab6339307e66746e009`, `assets/images/logo.png`, usado por `src/app/welcome.tsx`. Solo se copia ese archivo; el repositorio de referencia no se modifica.
+- Las imágenes del encabezado, Nosotros y pie usan `import.meta.env.BASE_URL`. El metadato de imagen usa `%BASE_URL%`.
+- Alex queda a cargo de la integración y publicación.
+
+Validación W2 completada: `npm ci --cache /tmp/aymariachi-npm-cache`, `npm run build` y `git diff --check`. La caché predeterminada no era escribible. Chromium/Playwright verificó los tres logos (carga y HTTP 200) en `/` y `/aymariachiweb/`, controles, indicadores, teclado, gesto móvil, ausencia de desbordamiento horizontal y movimiento reducido en 1440 y 390 px. También se comprobó el menú móvil y la guía con movimiento normal. Capturas locales revisadas de la guía en ambos tamaños. Queda pendiente la revisión visual independiente de Alex y la prueba en un teléfono físico. Vite conserva el aviso previo por el tamaño del JavaScript inicial.
