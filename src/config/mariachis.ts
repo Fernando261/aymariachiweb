@@ -14,6 +14,7 @@ export type Mariachi = {
   musicianCounts: readonly number[];
   active: boolean;
   zone?: string;
+  description?: string;
   /** Ruta relativa a public/, sin barra inicial. */
   photo?: string;
   durationMinutes?: readonly number[];

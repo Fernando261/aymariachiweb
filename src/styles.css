@@ -200,12 +200,13 @@ section { scroll-margin-top: 76px; }
 .catalog h4 { font: 500 28px/1.2 var(--serif); margin: 18px 0; color: var(--gold-bright); }
 .catalog p, .catalog label, .catalog dl { font-size: 14px; line-height: 1.7; color: #c4b6a2; }
 .catalog a:not(.button) { color: var(--gold-bright); text-decoration: underline; }
+.catalog .catalog-demo { padding: 10px 12px; border: 1px solid var(--gold-muted); color: var(--gold-bright); }
 .catalog-filters { display: flex; flex-wrap: wrap; gap: 8px; }
 .catalog button:not(.button) { padding: 10px 13px; min-height: 44px; border: 1px solid var(--gold-muted); background: #17110d; color: var(--gold-bright); cursor: pointer; font: inherit; font-size: 13px; }
 .catalog-filters button[aria-pressed="true"], .catalog button:not(.button):hover { background: var(--gold); color: #17110d; }
 .catalog-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
 .catalog-card { padding: 20px; border: 1px solid var(--line); background: #100d0aaa; overflow-wrap: anywhere; }
-.catalog-card img { width: 100%; height: 160px; object-fit: cover; }
+.catalog-card img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .catalog label { display: grid; gap: 8px; margin: 20px 0; }
 .catalog select { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--gold-muted); background: #17110d; color: #f0dfbb; font: inherit; }
 .catalog-summary { border-block: 1px solid var(--line); margin-top: 24px; padding: 18px 0; }

@@ -135,10 +135,15 @@ Cada objeto debe cumplir el tipo `Mariachi`:
 | `musicianCounts` | Cantidades de músicos aprobadas, enteros positivos sin duplicados. No dejes vacío un grupo disponible. |
 | `active` | `true` para mostrarlo; `false` lo oculta de todos los filtros. |
 | `zone` | Opcional: solo zona de servicio pública aprobada, nunca dirección privada. |
+| `description` | Opcional: una descripción breve del repertorio o el tipo de evento. |
 | `photo` | Opcional: ruta relativa a `public/`, sin barra inicial; imagen autorizada sin datos privados. Se aplica la base de Vite. |
 | `durationMinutes` | Opcional: duraciones aprobadas en minutos, enteros positivos sin duplicados. Si falta o está vacío, no aparece selector. |
 
 No se hacen consultas a servicios, no hay registro de clientes ni persistencia de solicitudes. Este catálogo es estático y manual; actualizarlo requiere una nueva compilación. Mantén los nombres reales y los datos privados fuera del repositorio.
+
+### Catálogo de prueba
+
+Abre `/?demo=1#guia` para ver tres perfiles de ejemplo con fotos ilustrativas de los recursos de la app móvil. Los ejemplos permiten practicar los filtros y la selección. El envío de solicitudes se mantiene deshabilitado en este modo.
 
 ### WhatsApp
 
