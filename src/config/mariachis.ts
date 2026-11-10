@@ -2,6 +2,15 @@ export const categories = [
   { id: 'serenatas', label: 'Serenatas' },
   { id: 'celebraciones', label: 'Celebraciones' },
   { id: 'especiales', label: 'Eventos especiales' },
+  { id: 'bodas', label: 'Bodas' },
+  { id: 'cumpleanos', label: 'Cumpleaños' },
+  { id: 'aniversarios', label: 'Aniversarios' },
+  { id: 'pedidas', label: 'Pedidas de mano' },
+  { id: 'quinceanos', label: 'XV años' },
+  { id: 'graduaciones', label: 'Graduaciones' },
+  { id: 'fiestas-patrias', label: 'Fiestas patrias' },
+  { id: 'empresariales', label: 'Eventos empresariales' },
+  { id: 'homenajes', label: 'Homenajes' },
 ] as const;
 
 export type Category = typeof categories[number]['id'];

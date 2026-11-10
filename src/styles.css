@@ -208,7 +208,8 @@ section { scroll-margin-top: 76px; }
 .catalog-card { padding: 20px; border: 1px solid var(--line); background: #100d0aaa; overflow-wrap: anywhere; }
 .catalog-card img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .catalog label { display: grid; gap: 8px; margin: 20px 0; }
-.catalog select { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--gold-muted); background: #17110d; color: #f0dfbb; font: inherit; }
+.catalog input, .catalog select { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--gold-muted); background: #17110d; color: #f0dfbb; font: inherit; }
+.catalog input { color-scheme: dark; }
 .catalog-summary { border-block: 1px solid var(--line); margin-top: 24px; padding: 18px 0; }
 .catalog-summary h5 { font-size: 16px; margin: 0 0 14px; }
 .catalog-summary dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; }

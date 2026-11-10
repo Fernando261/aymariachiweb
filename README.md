@@ -119,7 +119,7 @@ Usa una escena que hayas creado o cuya licencia permita reutilización, y conser
 
 ## Catálogo manual y solicitudes (W3)
 
-Las tarjetas Serenatas, Celebraciones y Eventos especiales llevan a `#guia`, enfocan el título del catálogo y aplican el filtro. Los botones de categoría señalan la opción activa y «Todas» recupera el listado completo. Tras elegir un grupo se muestran sus cantidades admitidas, las duraciones disponibles si las hay y un resumen. «Volver al listado» devuelve el foco al grupo. Cambiar la categoría o el grupo limpia las elecciones; volver a pulsar una tarjeta de Experiencias también vuelve al listado filtrado.
+Las tarjetas Serenatas, Celebraciones y Eventos especiales llevan a `#guia`, enfocan el título del catálogo y aplican el filtro. Los botones de categoría señalan la opción activa y «Todas» recupera el listado completo. Tras elegir un grupo se muestran sus cantidades admitidas, las duraciones configuradas y un resumen. «Volver al listado» devuelve el foco al grupo. Cambiar la categoría o el grupo limpia las elecciones; volver a pulsar una tarjeta de Experiencias también vuelve al listado filtrado.
 
 ### Agregar opciones aprobadas
 
@@ -131,13 +131,13 @@ Cada objeto debe cumplir el tipo `Mariachi`:
 | --- | --- |
 | `code` | Código público único y estable; no lo reutilices para otro grupo. |
 | `alias` | Alias público con el formato `Mariachi #…`. Nunca el nombre real. |
-| `categories` | Una o más de `serenatas`, `celebraciones`, `especiales`. |
+| `categories` | Una o más de las categorías de `src/config/mariachis.ts`. |
 | `musicianCounts` | Cantidades de músicos aprobadas, enteros positivos sin duplicados. No dejes vacío un grupo disponible. |
 | `active` | `true` para mostrarlo; `false` lo oculta de todos los filtros. |
 | `zone` | Opcional: solo zona de servicio pública aprobada, nunca dirección privada. |
 | `description` | Opcional: una descripción breve del repertorio o el tipo de evento. |
 | `photo` | Opcional: ruta relativa a `public/`, sin barra inicial; imagen autorizada sin datos privados. Se aplica la base de Vite. |
-| `durationMinutes` | Opcional: duraciones aprobadas en minutos, enteros positivos sin duplicados. Si falta o está vacío, no aparece selector. |
+| `durationMinutes` | Duraciones aprobadas en minutos, enteros positivos sin duplicados. Un grupo necesita al menos una duración para aparecer. |
 
 No se hacen consultas a servicios, no hay registro de clientes ni persistencia de solicitudes. Este catálogo es estático y manual; actualizarlo requiere una nueva compilación. Mantén los nombres reales y los datos privados fuera del repositorio.
 
@@ -149,7 +149,7 @@ Cuando el arreglo de grupos aprobados está vacío, «Guía para tu evento» mue
 
 Configura únicamente el número oficial en `company.whatsappNumber` de `src/config/site.ts` (indicativo internacional, solo dígitos). Si sigue vacío, la solicitud permanece deshabilitada. Los enlaces generales de contacto conservan su mensaje original.
 
-El mensaje de solicitud incluye categoría, alias y código públicos, cantidad de músicos y duración si se eligió. Se codifica con `encodeURIComponent` para conservar acentos y saltos de línea. Desde «Todas» se elige también una ocasión admitida por el grupo. La duración se puede dejar por acordar. El botón abre WhatsApp en otra pestaña: el visitante revisa y confirma allí el envío. La fecha, la dirección, el nombre del cliente y la organización se tratan únicamente en WhatsApp.
+La web pide ocasión, grupo, cantidad de músicos, duración exacta, fecha, hora de Guadalajara y municipio. El mensaje empieza con `Solicitud web · AYM-01` y envía un campo por línea en un orden fijo, listo para una futura integración con la API de WhatsApp. El botón abre el mensaje precargado y el visitante confirma el envío. Las respuestas automáticas requieren conectar la API y un webhook por separado.
 
 ### Pruebas reproducibles
 

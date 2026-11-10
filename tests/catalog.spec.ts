@@ -15,6 +15,12 @@ async function fixtureWhatsApp(page: Page, number: string) {
     await route.fulfill({ response, body });
   });
 }
+async function fillEventDetails(page: Page, date = '2099-08-15') {
+  const area = catalog(page);
+  await area.getByLabel('Fecha del evento').fill(date);
+  await area.getByLabel('Hora del evento (Guadalajara)').fill('19:30');
+  await area.getByLabel('Municipio').selectOption('Zapopan');
+}
 async function enterCategory(page: Page, label: string, keyboard = false) {
   const link = page.locator('.experience-card').filter({ has: page.getByRole('heading', { name: label, exact: true }) });
   if (keyboard) { await link.focus(); await page.keyboard.press('Enter'); } else await link.click();
@@ -24,11 +30,12 @@ async function enterCategory(page: Page, label: string, keyboard = false) {
 
 test.beforeEach(async ({ page }) => { await page.route('https://**', (route) => route.abort()); });
 
-for (const path of ['/', '/aymariachiweb/']) test(`build real: perfiles de ejemplo y tres categorías ${path}`, async ({ page }) => {
+for (const path of ['/', '/aymariachiweb/']) test(`build real: perfiles de ejemplo y doce categorías ${path}`, async ({ page }) => {
   await page.goto(`http://127.0.0.1:${path === '/' ? 4181 : 4182}${path}`);
   await expect(catalog(page).getByText('Perfiles de ejemplo', { exact: true })).toBeVisible();
-  for (const { id, label } of categories) {
-    await enterCategory(page, label, true);
+  for (const [index, { id, label }] of categories.entries()) {
+    if (index < 3) await enterCategory(page, label, true);
+    else await catalog(page).getByRole('button', { name: label, exact: true }).click();
     const examples = demoMariachis.filter((mariachi) => mariachi.categories.includes(id));
     await expect(catalog(page).locator('.catalog-list h4')).toHaveText(examples.map(({ alias }) => alias));
   }
@@ -53,31 +60,35 @@ for (const width of [320, 390, 1440]) test(`filtrado, cambio de grupo, resumen y
   await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
   await expect(area.getByLabel('Número de músicos').locator('option')).toHaveText(['Elige la cantidad', '3 músicos', '5 músicos']);
   await area.getByLabel('Número de músicos').selectOption('5');
-  await area.getByLabel('Duración (opcional)').selectOption('60');
+  await fillEventDetails(page, '2000-01-01');
+  await area.getByLabel('Duración').selectOption('60');
+  await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
+  await fillEventDetails(page);
   await expect(area.locator('.catalog-summary')).toContainText('60 minutos');
-  await area.screenshot({ path: `/tmp/w3-catalog-${width}.png` });
   const request = area.getByRole('link', { name: 'Enviar solicitud' });
   const url = new URL((await request.getAttribute('href'))!);
   expect(url.hostname).toBe('wa.me'); expect(url.pathname).toBe('/5210000000000');
-  expect(url.searchParams.get('text')).toBe('¡Hola! Me gustaría solicitar una presentación de mariachi.\nCategoría: Serenatas\nMariachi: Mariachi #01 (TEST-01)\nMúsicos: 5\nDuración: 60 minutos\nQuisiera consultar disponibilidad y organizar los detalles.');
+  expect(url.searchParams.get('text')).toBe('Solicitud web · AYM-01\nCategoría: Serenatas\nMariachi: Mariachi #01 (TEST-01)\nMúsicos: 5\nDuración: 60 minutos\nFecha: 2099-08-15\nHora (Guadalajara): 19:30\nMunicipio: Zapopan');
   // No se abre WhatsApp ni se envía ningún mensaje durante las pruebas.
   await area.getByRole('button', { name: 'Volver al listado' }).click();
   await expect(area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true })).toBeFocused();
   await area.getByRole('button', { name: 'Elegir Mariachi #02', exact: true }).click();
   await expect(area.getByLabel('Número de músicos').locator('option')).toHaveText(['Elige la cantidad', '7 músicos']);
-  await expect(area.getByLabel('Duración (opcional)')).toHaveCount(0);
+  await expect(area.getByLabel('Duración').locator('option')).toHaveText(['Elige la duración', '45 minutos', '90 minutos']);
   await expect(area.locator('.catalog-summary')).toContainText('Por elegir');
   await area.getByLabel('Número de músicos').selectOption('7');
-  const noDuration = new URL((await area.getByRole('link', { name: 'Enviar solicitud' }).getAttribute('href'))!);
-  expect(noDuration.searchParams.get('text')).not.toContain('Duración:');
+  await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
+  await area.getByLabel('Duración').selectOption('90');
+  await expect(area.getByRole('link', { name: 'Enviar solicitud' })).toBeVisible();
   await area.getByRole('button', { name: 'Celebraciones', exact: true }).click();
   await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
   await expect(area.getByLabel('Número de músicos')).toHaveValue('');
-  await expect(area.getByLabel('Duración (opcional)')).toHaveValue('');
+  await expect(area.getByLabel('Duración')).toHaveValue('');
   await area.getByRole('button', { name: 'Todas', exact: true }).click();
   await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
   await area.getByLabel('Número de músicos').selectOption('3');
   await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
+  await area.getByLabel('Duración').selectOption('30');
   await area.getByLabel('Tipo de ocasión').selectOption('celebraciones');
   await expect(area.getByRole('link', { name: 'Enviar solicitud' })).toBeVisible();
   await enterCategory(page, 'Serenatas', true);
@@ -97,12 +108,15 @@ test('perfiles de ejemplo: WhatsApp prepara una consulta de disponibilidad', asy
   const area = catalog(page);
   await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
   await area.getByLabel('Número de músicos').selectOption('4');
+  await fillEventDetails(page);
+  await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
+  await area.getByLabel('Duración').selectOption('45');
   const request = area.getByRole('link', { name: 'Enviar solicitud' });
   const url = new URL((await request.getAttribute('href'))!);
   expect(url.hostname).toBe('wa.me');
   expect(url.pathname).toBe('/5210000000000');
   expect(url.searchParams.get('text')).toContain('Referencia ilustrativa: Mariachi #01 (ejemplo)');
-  expect(url.searchParams.get('text')).toContain('Músicos: 4');
+  expect(url.searchParams.get('text')).toContain('Músicos: 4\nDuración: 45 minutos\nFecha: 2099-08-15\nHora (Guadalajara): 19:30\nMunicipio: Zapopan');
 });
 
 test('sin número: solicitud deshabilitada y contacto existente conservado', async ({ page }) => {
@@ -111,6 +125,8 @@ test('sin número: solicitud deshabilitada y contacto existente conservado', asy
   await enterCategory(page, 'Serenatas');
   await catalog(page).getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
   await catalog(page).getByLabel('Número de músicos').selectOption('3');
+  await catalog(page).getByLabel('Duración').selectOption('30');
+  await fillEventDetails(page);
   await expect(catalog(page).getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
   await expect(catalog(page).getByText('Las solicitudes por WhatsApp aún no están disponibles.', { exact: false })).toBeVisible();
   await expect(page.locator('a[href*="wa.me"]')).toHaveCount(0);

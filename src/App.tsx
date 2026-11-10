@@ -239,7 +239,7 @@ export default function App() {
               <Ornament className="ornament--left" />
               <h2 className="section-title" id="guide-title">Guía para <em>tu evento.</em></h2>
               <p className="section-body">Cada celebración tiene su propio ritmo. Piensa en la ocasión, el espacio y el estilo que imaginas para elegir el acompañamiento musical de tu momento.</p>
-              <p className="section-body">Explora las opciones por ocasión y prepara tu solicitud. La disponibilidad y los detalles de tu evento se confirman en WhatsApp.</p>
+              <p className="section-body">Explora las ocasiones y define los datos de tu evento desde la web. Envía la solicitud completa por WhatsApp.</p>
               <a className="button button--outline" href="#contacto">Hablemos de tu evento <ArrowUpRight size={18} /></a>
             </div>
             <EventCatalog key={catalogVisit} category={category} onCategoryChange={setCategory} />
