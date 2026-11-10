@@ -5,7 +5,8 @@ import {
   Sparkles as SparklesIcon, Star, X,
 } from 'lucide-react';
 import MariachiScene from './components/MariachiScene';
-import EventGuide from './components/EventGuide';
+import EventCatalog from './components/EventCatalog';
+import { type Category } from './config/mariachis';
 import { usePageMotion, useReducedMotion } from './components/Motion';
 import { company, whatsAppUrl } from './config/site';
 
@@ -14,19 +15,19 @@ const logoUrl = `${import.meta.env.BASE_URL}logo-ay-mariachi.png`;
 type Social = { name: string; caption: string; url: string; icon: typeof Instagram; number: string };
 const experiences = [
   {
-    number: '01', label: 'El detalle perfecto', title: 'Serenatas',
+    category: 'serenatas' as const, number: '01', label: 'El detalle perfecto', title: 'Serenatas',
     body: 'Hay sentimientos que una canción dice mejor. Convierte una sorpresa en un recuerdo para siempre.',
     icon: Heart,
     photo: 'https://images.unsplash.com/photo-1745470419655-51d01b00f22a?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    number: '02', label: 'Momentos que se celebran', title: 'Celebraciones',
+    category: 'celebraciones' as const, number: '02', label: 'Momentos que se celebran', title: 'Celebraciones',
     body: 'Cumpleaños, aniversarios y reuniones que merecen una banda sonora tan especial como su historia.',
     icon: SparklesIcon,
     photo: 'https://images.unsplash.com/photo-1769230367203-7bd409f483c9?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    number: '03', label: 'Una ocasión extraordinaria', title: 'Eventos especiales',
+    category: 'especiales' as const, number: '03', label: 'Una ocasión extraordinaria', title: 'Eventos especiales',
     body: 'Bodas, pedidas de mano y grandes encuentros con el alma y la energía de nuestra tradición.',
     icon: CalendarHeart,
     photo: 'https://images.unsplash.com/photo-1769230367366-13ed92feb145?auto=format&fit=crop&w=1200&q=80',
@@ -66,6 +67,8 @@ export default function App() {
   const root = usePageMotion(reducedMotion);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [category, setCategory] = useState<Category | null>(null);
+  const [catalogVisit, setCatalogVisit] = useState(0);
   const whatsApp = whatsAppUrl();
   const socials: Social[] = [
     { name: 'Instagram', caption: 'Síguenos e inspírate', url: company.instagram, icon: Instagram, number: '01' },
@@ -195,7 +198,11 @@ export default function App() {
               {experiences.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <a className="experience-card" key={item.number} href="#contacto" data-reveal>
+                  <a className="experience-card" key={item.number} href="#guia" onClick={() => {
+                    setCategory(item.category);
+                    setCatalogVisit((visit) => visit + 1);
+                    requestAnimationFrame(() => document.getElementById('catalog-title')?.focus());
+                  }} data-reveal>
                     <div className="experience-card__image" style={{ backgroundImage: `linear-gradient(180deg, rgba(12,9,8,.08), rgba(8,7,7,.85)), url('${item.photo}')` }}>
                       <span className="experience-card__number">{item.number} / 03</span>
                       <span className="experience-card__icon"><Icon size={23} strokeWidth={1.5} /></span>
@@ -224,7 +231,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* GUÍA: W3 puede incorporar el catálogo dentro de esta misma sección. */}
+        {/* GUÍA Y CATÁLOGO */}
         <section className="section guide-section" id="guia" aria-labelledby="guide-title">
           <div className="container guide-grid">
             <div className="guide-copy" data-reveal>
@@ -232,10 +239,10 @@ export default function App() {
               <Ornament className="ornament--left" />
               <h2 className="section-title" id="guide-title">Guía para <em>tu evento.</em></h2>
               <p className="section-body">Cada celebración tiene su propio ritmo. Piensa en la ocasión, el espacio y el estilo que imaginas para elegir el acompañamiento musical de tu momento.</p>
-              <p className="section-body">Recorre estas tres ideas y comparte tus preferencias cuando nos contactes.</p>
+              <p className="section-body">Explora las opciones por ocasión y prepara tu solicitud. La disponibilidad y los detalles de tu evento se confirman en WhatsApp.</p>
               <a className="button button--outline" href="#contacto">Hablemos de tu evento <ArrowUpRight size={18} /></a>
             </div>
-            <EventGuide />
+            <EventCatalog key={catalogVisit} category={category} onCategoryChange={setCategory} />
           </div>
         </section>
 

@@ -50,7 +50,7 @@ ay-mariachi-web/
     ├── config/
     │   └── site.ts                     # ÚNICO LUGAR para configurar redes y contacto
     └── components/
-        ├── EventGuide.tsx              # Guía de tres temas, controles y gesto móvil
+        ├── EventCatalog.tsx            # Catálogo, selección y solicitud por WhatsApp
         ├── MariachiScene.tsx           # Trompeta 3D en React Three Fiber
         └── Motion.tsx                  # Anime.js + detección de movimiento reducido
 ```
@@ -117,9 +117,58 @@ Usa una escena que hayas creado o cuya licencia permita reutilización, y conser
 - El nombre, la identidad dorada y el logo fueron aportados por el solicitante.
 - Los textos son propuestas editoriales que se pueden ajustar; no incluyen cifras de ventas, clientes o logros no confirmados.
 
-## Guía para tu evento (W2)
+## Catálogo manual y solicitudes (W3)
 
-`src/components/EventGuide.tsx` contiene los tres temas: ocasión, espacio y estilo. Reutiliza el panel, flechas e indicadores del carrusel anterior, con tarjetas de texto y sin avance automático ni animaciones de transición. Permite Tab + Enter/Espacio, flechas izquierda/derecha, Inicio/Fin y gesto horizontal en móvil. El gesto vertical conserva el scroll. La zona `#guia` queda disponible para incorporar el catálogo en W3.
+Las tarjetas Serenatas, Celebraciones y Eventos especiales llevan a `#guia`, enfocan el título del catálogo y aplican el filtro. Los botones de categoría señalan la opción activa y «Todas» recupera el listado completo. Tras elegir un grupo se muestran sus cantidades admitidas, las duraciones disponibles si las hay y un resumen. «Volver al listado» devuelve el foco al grupo. Cambiar la categoría o el grupo limpia las elecciones; volver a pulsar una tarjeta de Experiencias también vuelve al listado filtrado.
+
+### Agregar opciones aprobadas
+
+Edita `src/config/mariachis.ts`. El arreglo `mariachis` está vacío a propósito: aún no se han proporcionado opciones públicas aprobadas. No publiques los fixtures de `tests/catalog-fixtures.ts`.
+
+Cada objeto debe cumplir el tipo `Mariachi`:
+
+| Campo | Configuración |
+| --- | --- |
+| `code` | Código público único y estable; no lo reutilices para otro grupo. |
+| `alias` | Alias público con el formato `Mariachi #…`. Nunca el nombre real. |
+| `categories` | Una o más de `serenatas`, `celebraciones`, `especiales`. |
+| `musicianCounts` | Cantidades de músicos aprobadas, enteros positivos sin duplicados. No dejes vacío un grupo disponible. |
+| `active` | `true` para mostrarlo; `false` lo oculta de todos los filtros. |
+| `zone` | Opcional: solo zona de servicio pública aprobada, nunca dirección privada. |
+| `photo` | Opcional: ruta relativa a `public/`, sin barra inicial; imagen autorizada sin datos privados. Se aplica la base de Vite. |
+| `durationMinutes` | Opcional: duraciones aprobadas en minutos, enteros positivos sin duplicados. Si falta o está vacío, no aparece selector. |
+
+No se hacen consultas a servicios, no hay registro de clientes ni persistencia de solicitudes. Este catálogo es estático y manual; actualizarlo requiere una nueva compilación. Mantén los nombres reales y los datos privados fuera del repositorio.
+
+### WhatsApp
+
+Configura únicamente el número oficial en `company.whatsappNumber` de `src/config/site.ts` (indicativo internacional, solo dígitos). Si sigue vacío, la solicitud permanece deshabilitada y el sitio indica otros medios de contacto. Los enlaces generales de contacto conservan su mensaje original.
+
+El mensaje de solicitud incluye categoría, alias y código públicos, cantidad de músicos y duración si se eligió. Se codifica con `encodeURIComponent` para conservar acentos y saltos de línea. Desde «Todas» se elige también una ocasión admitida por el grupo. La duración se puede dejar por acordar. El botón abre WhatsApp en otra pestaña: el visitante revisa y confirma allí el envío. La fecha, la dirección, el nombre del cliente y la organización se tratan únicamente en WhatsApp.
+
+### Pruebas reproducibles
+
+```sh
+npm ci
+npm run build
+npx playwright install chromium
+npm run test:e2e
+git diff --check
+```
+
+Si Chromium ya está instalado, usa `CHROMIUM_PATH=/ruta/a/chromium npm run test:e2e`. Las pruebas levantan Vite en 4180 y los previews de `dist/` en 4181 (raíz) y 4182 (montaje bajo `/aymariachiweb/`). Los fixtures se inyectan solo mediante interceptación de módulos en el navegador de pruebas contra Vite; el build publicado mantiene el catálogo real vacío y el número oficial sin configurar. Ninguna prueba envía solicitudes ni abre WhatsApp. No se requiere instalar navegadores para compilar la web.
+
+### Validación ejecutada de W3
+
+- `npm ci --cache /tmp/aymariachi-npm-cache`, `npm run build` y `git diff --check`: correctos. Vite conserva el aviso previo de tamaño del bundle.
+- `CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e`: **7 pruebas correctas**. El build real se probó vacío en `/` y `/aymariachiweb/`; los fixtures aislados verificaron filtros, inactivos, cambio de grupo/categoría, regreso al listado, cantidades, duraciones, resumen, mensaje exacto codificado, ausencia de número y enlaces de contacto existentes.
+- Interacción táctil emulada a 320 y 390 px, escritorio a 1440 px y teclado (Enter, Espacio, Tab y selectores). Sin desbordamiento horizontal en los tres anchos. Capturas del flujo con fixtures revisadas localmente a 390 y 1440 px.
+- Se comprobó que ni los códigos ni el número ficticio de las pruebas aparecen en `dist/`.
+- Pendientes: revisión independiente de Alex, teléfono físico, lector de pantalla y apertura real de WhatsApp con número oficial. No se abrió WhatsApp ni se envió ningún mensaje. El catálogo seguirá vacío y las solicitudes deshabilitadas hasta configurar datos aprobados y el número oficial.
+
+### Base de W3
+
+W2 (PR #2) seguía abierto al iniciar W3. La rama `codex/web-w3-catalogo-whatsapp` parte de la versión revisada `0a98794bbbc7e73a9fd28654fe953714088b45de` de `codex/web-w2-logo-y-guia`; esa misma rama es la base del PR para aislar W3. Alex conserva la integración y publicación.
 
 ## Base y procedencia de W2
 
