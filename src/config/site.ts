@@ -11,7 +11,6 @@ export const company = {
   facebook: 'https://www.facebook.com/profile.php?id=61595880183603',
   tiktok: 'https://www.tiktok.com/@aymariachiparatodos',
   email: 'aymariachiparatodos@gmail.com',
-  appUrl: '', // URL de la app cuando esté publicada
 } as const;
 
 export function whatsAppUrl() {

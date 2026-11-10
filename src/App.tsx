@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
-  ArrowDown, ArrowRight, ArrowUpRight, CalendarHeart, Check, ChevronRight,
+  ArrowDown, ArrowRight, ArrowUpRight, CalendarHeart, ChevronRight,
   Facebook, Heart, Instagram, Menu, MessageCircle, Music2,
   Sparkles as SparklesIcon, Star, X,
 } from 'lucide-react';
 import MariachiScene from './components/MariachiScene';
-import AppShowcase from './components/AppShowcase';
+import EventGuide from './components/EventGuide';
 import { usePageMotion, useReducedMotion } from './components/Motion';
 import { company, whatsAppUrl } from './config/site';
 
@@ -31,12 +31,6 @@ const experiences = [
     icon: CalendarHeart,
     photo: 'https://images.unsplash.com/photo-1769230367366-13ed92feb145?auto=format&fit=crop&w=1200&q=80',
   },
-];
-
-const steps = [
-  { id: '01', title: 'Imagina tu momento', text: 'Cuéntanos qué quieres celebrar y cómo te gustaría vivirlo.' },
-  { id: '02', title: 'Encuentra tu mariachi', text: 'Una experiencia digital pensada para explorar opciones y elegir músicos.' },
-  { id: '03', title: 'Que empiece la música', text: 'Convierte tu plan en una experiencia con auténtico sabor mexicano.' },
 ];
 
 function Ornament({ className = '' }: { className?: string }) {
@@ -102,13 +96,12 @@ export default function App() {
       <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
         <nav className="nav container" aria-label="Navegación principal">
           <a className="brand" href="#inicio" onClick={closeMenu} aria-label="Ay! Mariachi Para Todos, ir al inicio">
-            <span className="brand__icon">A<span>!</span></span>
-            <span className="brand__words"><strong>AY! MARIACHI</strong><small>PARA TODOS</small></span>
+            <img className="brand__logo" src={logoUrl} alt="Ay! Mariachi Para Todos" width="1536" height="1024" />
           </a>
           <div className={`nav-links ${menuOpen ? 'is-open' : ''}`} id="nav-principal">
             <a href="#nosotros" onClick={closeMenu}>Nosotros</a>
             <a href="#experiencias" onClick={closeMenu}>Experiencias</a>
-            <a href="#app" onClick={closeMenu}>Nuestra app</a>
+            <a href="#guia" onClick={closeMenu}>Guía para tu evento</a>
             <a href="#contacto" onClick={closeMenu} className="mobile-contact">Contáctanos</a>
           </div>
           <a className="nav-cta" href="#contacto">Hablemos <ArrowUpRight size={16} /></a>
@@ -186,7 +179,7 @@ export default function App() {
                 <div><span className="about-values__icon"><Heart size={20} /></span><span><strong>Corazón mexicano</strong><small>Autenticidad en cada nota</small></span></div>
                 <div><span className="about-values__icon"><SparklesIcon size={20} /></span><span><strong>Una nueva forma de conectar</strong><small>Tradición que mira al futuro</small></span></div>
               </div>
-              <a href="#app" className="inline-link">Conoce nuestra visión <ArrowUpRight size={17} /></a>
+              <a href="#guia" className="inline-link">Prepara tu evento <ArrowUpRight size={17} /></a>
             </div>
           </div>
         </section>
@@ -231,21 +224,18 @@ export default function App() {
           </div>
         </section>
 
-        {/* APP EN DESARROLLO */}
-        <section className="section app-section" id="app" aria-labelledby="app-title">
-          <div className="container app-grid">
-            <div className="app-copy" data-reveal>
-              <p className="section-kicker">03 / LA TRADICIÓN EVOLUCIONA</p>
+        {/* GUÍA: W3 puede incorporar el catálogo dentro de esta misma sección. */}
+        <section className="section guide-section" id="guia" aria-labelledby="guide-title">
+          <div className="container guide-grid">
+            <div className="guide-copy" data-reveal>
+              <p className="section-kicker">03 / PREPARA TU MOMENTO</p>
               <Ornament className="ornament--left" />
-              <h2 className="section-title" id="app-title">La magia del mariachi, <em>a unos toques de ti.</em></h2>
-              <p className="section-body">Estamos desarrollando una aplicación que hará más sencillo descubrir opciones de mariachi y planear el acompañamiento musical de tus momentos especiales.</p>
-              <div className="app-status"><span className="app-status__dot" /> NUESTRA APP ESTÁ EN DESARROLLO</div>
-              <div className="app-steps">
-                {steps.map((step) => <div className="app-step" key={step.id}><span>{step.id}</span><div><h3>{step.title}</h3><p>{step.text}</p></div><Check size={17} /></div>)}
-              </div>
-              {company.appUrl ? <a className="button button--outline" href={company.appUrl} target="_blank" rel="noopener noreferrer">Explorar la app <ArrowUpRight size={18} /></a> : <a className="button button--outline" href="#contacto">Quiero saber más <ArrowUpRight size={18} /></a>}
+              <h2 className="section-title" id="guide-title">Guía para <em>tu evento.</em></h2>
+              <p className="section-body">Cada celebración tiene su propio ritmo. Piensa en la ocasión, el espacio y el estilo que imaginas para elegir el acompañamiento musical de tu momento.</p>
+              <p className="section-body">Recorre estas tres ideas y comparte tus preferencias cuando nos contactes.</p>
+              <a className="button button--outline" href="#contacto">Hablemos de tu evento <ArrowUpRight size={18} /></a>
             </div>
-            <AppShowcase reducedMotion={reducedMotion} />
+            <EventGuide />
           </div>
         </section>
 
@@ -276,7 +266,7 @@ export default function App() {
             <img src={logoUrl} alt="Ay! Mariachi Para Todos" loading="lazy" />
             <p>La tradición que nos une.<br />La música que nos mueve.</p>
           </div>
-          <div className="footer-column"><h3>EXPLORA</h3><a href="#inicio">Inicio <ChevronRight size={14} /></a><a href="#nosotros">Nuestra esencia <ChevronRight size={14} /></a><a href="#experiencias">Experiencias <ChevronRight size={14} /></a><a href="#app">La app <ChevronRight size={14} /></a></div>
+          <div className="footer-column"><h3>EXPLORA</h3><a href="#inicio">Inicio <ChevronRight size={14} /></a><a href="#nosotros">Nuestra esencia <ChevronRight size={14} /></a><a href="#experiencias">Experiencias <ChevronRight size={14} /></a><a href="#guia">Guía para tu evento <ChevronRight size={14} /></a></div>
           <div className="footer-column"><h3>HABLEMOS</h3><a href="#contacto">Contacto <ChevronRight size={14} /></a>{whatsApp && <a href={whatsApp} target="_blank" rel="noopener noreferrer">WhatsApp <ChevronRight size={14} /></a>}{company.instagram && <a href={company.instagram} target="_blank" rel="noopener noreferrer">Instagram <ChevronRight size={14} /></a>}<span>Guadalajara, Jalisco, México</span></div>
           <div className="footer-quote"><span>✦</span><p>Que nunca falte una canción para celebrar la vida.</p></div>
         </div>
