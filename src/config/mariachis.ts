@@ -14,10 +14,11 @@ export type Mariachi = {
   musicianCounts: readonly number[];
   active: boolean;
   zone?: string;
+  description?: string;
   /** Ruta relativa a public/, sin barra inicial. */
   photo?: string;
   durationMinutes?: readonly number[];
 };
 
-// Sin opciones aprobadas todavía. Los datos ficticios viven únicamente en tests/.
+// Catálogo de grupos aprobados. Mientras esté vacío se muestran referencias ilustrativas.
 export const mariachis: readonly Mariachi[] = [];

@@ -6,7 +6,7 @@
 export const company = {
   name: 'Ay! Mariachi Para Todos',
   city: 'Guadalajara, Jalisco',
-  whatsappNumber: '', // Ejemplo de formato: 5213312345678 (sin + ni espacios)
+  whatsappNumber: '523112616193',
   instagram: 'https://www.instagram.com/aymariachiparatodos/',
   facebook: 'https://www.facebook.com/profile.php?id=61595880183603',
   tiktok: 'https://www.tiktok.com/@aymariachiparatodos',

@@ -1,13 +1,17 @@
 import { test, expect, type Page } from '@playwright/test';
+import { demoMariachis } from '../src/config/demo-mariachis';
 import { categories } from '../src/config/mariachis';
 import { fixtures } from './catalog-fixtures';
 
 const catalog = (page: Page) => page.locator('.catalog');
 async function fixtureCatalog(page: Page, number = '') {
   await page.route('**/src/config/mariachis.ts', (route) => route.fulfill({ contentType: 'text/javascript', body: `export const categories = ${JSON.stringify(categories)}; export const mariachis = ${JSON.stringify(fixtures)};` }));
-  if (number) await page.route('**/src/config/site.ts', async (route) => {
+  await fixtureWhatsApp(page, number);
+}
+async function fixtureWhatsApp(page: Page, number: string) {
+  await page.route('**/src/config/site.ts', async (route) => {
     const response = await route.fetch();
-    const body = (await response.text()).replace(/whatsappNumber:\s*(['"])\1/, `whatsappNumber: ${JSON.stringify(number)}`);
+    const body = (await response.text()).replace(/whatsappNumber:\s*(['"])\d*\1/, `whatsappNumber: ${JSON.stringify(number)}`);
     await route.fulfill({ response, body });
   });
 }
@@ -20,12 +24,13 @@ async function enterCategory(page: Page, label: string, keyboard = false) {
 
 test.beforeEach(async ({ page }) => { await page.route('https://**', (route) => route.abort()); });
 
-for (const path of ['/', '/aymariachiweb/']) test(`build real: catálogo vacío y tres categorías ${path}`, async ({ page }) => {
+for (const path of ['/', '/aymariachiweb/']) test(`build real: perfiles de ejemplo y tres categorías ${path}`, async ({ page }) => {
   await page.goto(`http://127.0.0.1:${path === '/' ? 4181 : 4182}${path}`);
-  for (const { label } of categories) {
+  await expect(catalog(page).getByText('Perfiles de ejemplo', { exact: true })).toBeVisible();
+  for (const { id, label } of categories) {
     await enterCategory(page, label, true);
-    await expect(catalog(page).getByText('Estamos preparando las opciones')).toBeVisible();
-    await expect(catalog(page).getByRole('button', { name: /^Elegir Mariachi/ })).toHaveCount(0);
+    const examples = demoMariachis.filter((mariachi) => mariachi.categories.includes(id));
+    await expect(catalog(page).locator('.catalog-list h4')).toHaveText(examples.map(({ alias }) => alias));
   }
   await expect(page.locator('.brand__logo')).toHaveJSProperty('naturalWidth', 1536);
 });
@@ -83,6 +88,21 @@ for (const width of [320, 390, 1440]) test(`filtrado, cambio de grupo, resumen y
   await expect(area.locator('.catalog-summary')).toHaveCount(0);
   await expect(page.locator('.contact-primary')).toHaveAttribute('href', /wa\.me\/5210000000000/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('perfiles de ejemplo: WhatsApp prepara una consulta de disponibilidad', async ({ page }) => {
+  await fixtureWhatsApp(page, '5210000000000');
+  await page.goto('/');
+  await enterCategory(page, 'Serenatas');
+  const area = catalog(page);
+  await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
+  await area.getByLabel('Número de músicos').selectOption('4');
+  const request = area.getByRole('link', { name: 'Enviar solicitud' });
+  const url = new URL((await request.getAttribute('href'))!);
+  expect(url.hostname).toBe('wa.me');
+  expect(url.pathname).toBe('/5210000000000');
+  expect(url.searchParams.get('text')).toContain('Referencia ilustrativa: Mariachi #01 (ejemplo)');
+  expect(url.searchParams.get('text')).toContain('Músicos: 4');
 });
 
 test('sin número: solicitud deshabilitada y contacto existente conservado', async ({ page }) => {
