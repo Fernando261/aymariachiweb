@@ -1,0 +1,8 @@
+{
+  "name": "aymariachiweb",
+  "compatibility_date": "2026-11-09",
+  "assets": {
+    "directory": "./dist"
+  },
+  "previews": {}
+}
