@@ -10,37 +10,39 @@ type AppScreen = {
   alt: string;
 };
 
+const appScreensUrl = `${import.meta.env.BASE_URL}app-screens/`;
+
 // Modifica esta lista si quieres reemplazar, reordenar o agregar pantallas.
 // Los archivos deben estar en public/app-screens/.
 const screens: AppScreen[] = [
   {
     id: 'bienvenida', title: 'La bienvenida',
     description: 'Una primera impresión llena de tradición.',
-    src: '/app-screens/bienvenida.webp',
+    src: `${appScreensUrl}bienvenida.webp`,
     alt: 'Pantalla de bienvenida de Ay! Mariachi Para Todos, con mariachis y botón Comenzar',
   },
   {
     id: 'acceso', title: 'Tu experiencia comienza aquí',
     description: 'Un acceso claro para clientes y mariachis.',
-    src: '/app-screens/acceso.webp',
+    src: `${appScreensUrl}acceso.webp`,
     alt: 'Acceso de usuarios y mariachis con los colores negro y dorado de la aplicación',
   },
   {
     id: 'inicio', title: 'Descubre la música',
     description: 'Serenatas, bodas y celebraciones en un solo lugar.',
-    src: '/app-screens/inicio.webp',
+    src: `${appScreensUrl}inicio.webp`,
     alt: 'Inicio real de la aplicación mostrando categorías y servicios populares',
   },
   {
     id: 'eventos', title: 'Tus eventos, organizados',
     description: 'Sigue tus solicitudes y próximas celebraciones.',
-    src: '/app-screens/eventos.webp',
+    src: `${appScreensUrl}eventos.webp`,
     alt: 'Pantalla Mis eventos de la app, con datos de ubicación y fechas de ejemplo',
   },
   {
     id: 'perfil', title: 'Todo a tu manera',
     description: 'Tu cuenta y preferencias, siempre contigo.',
-    src: '/app-screens/perfil.webp',
+    src: `${appScreensUrl}perfil.webp`,
     alt: 'Pantalla Perfil de la app, con nombre de demostración',
   },
 ];

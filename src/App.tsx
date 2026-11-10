@@ -9,6 +9,8 @@ import AppShowcase from './components/AppShowcase';
 import { usePageMotion, useReducedMotion } from './components/Motion';
 import { company, whatsAppUrl } from './config/site';
 
+const logoUrl = `${import.meta.env.BASE_URL}logo-ay-mariachi.png`;
+
 type Social = { name: string; caption: string; url: string; icon: typeof Instagram; number: string };
 const experiences = [
   {
@@ -169,7 +171,7 @@ export default function App() {
               <div className="about-visual__frame">
                 <span className="about-visual__corner about-visual__corner--tl" />
                 <span className="about-visual__corner about-visual__corner--br" />
-                <img src="/logo-ay-mariachi.png" alt="Logo oficial dorado de Ay! Mariachi Para Todos" className="about-logo" loading="lazy" />
+                <img src={logoUrl} alt="Logo oficial dorado de Ay! Mariachi Para Todos" className="about-logo" loading="lazy" />
                 <span className="about-visual__signature">NUESTRAS RAÍCES · NUESTRA PASIÓN</span>
               </div>
               <div className="about-visual__floating"><Star size={19} fill="currentColor" /><span>TRADICIÓN<br />QUE CONECTA</span></div>
@@ -271,7 +273,7 @@ export default function App() {
         <div className="footer__top-border" aria-hidden="true" />
         <div className="container footer-main">
           <div className="footer-brand">
-            <img src="/logo-ay-mariachi.png" alt="Ay! Mariachi Para Todos" loading="lazy" />
+            <img src={logoUrl} alt="Ay! Mariachi Para Todos" loading="lazy" />
             <p>La tradición que nos une.<br />La música que nos mueve.</p>
           </div>
           <div className="footer-column"><h3>EXPLORA</h3><a href="#inicio">Inicio <ChevronRight size={14} /></a><a href="#nosotros">Nuestra esencia <ChevronRight size={14} /></a><a href="#experiencias">Experiencias <ChevronRight size={14} /></a><a href="#app">La app <ChevronRight size={14} /></a></div>
