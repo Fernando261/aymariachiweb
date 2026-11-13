@@ -19,7 +19,10 @@ En el Worker **aymariachi-whatsapp-test**, abre **Settings → Variables and Sec
 | `WA_ACCESS_TOKEN` | Token de acceso del panel **WhatsApp → API Setup** para el número de prueba. |
 | `WA_PHONE_NUMBER_ID` | **Phone number ID** del número de prueba, tal como aparece en API Setup. |
 | `WA_GRAPH_API_VERSION` | Versión indicada en el ejemplo cURL de Meta, con formato `vNN.N`. |
-| `WA_TEST_RECIPIENT` | Celular que recibió `hello_world`, en formato internacional de dígitos. Usa el identificador de WhatsApp del destinatario, `wa_id`, si lo muestra la respuesta de Meta. |
+| `WA_TEST_RECIPIENT` | Identificador entrante del WhatsApp autorizado, tal como aparece en `messages[].from` del webhook. |
+| `WA_TEST_REPLY_TO` | Opcional. Valor exacto de `to` en la solicitud exitosa de `hello_world` del panel de Meta, en formato internacional con solo dígitos. Si falta, se usa el identificador entrante. |
+
+Si Meta devuelve `131030` al responder pero `hello_world` sí llega, compara el `to` que acepta Meta con el identificador entrante. Cuando difieren, configura `WA_TEST_REPLY_TO` con el `to` que funciona y conserva `WA_TEST_RECIPIENT` para validar el remitente.
 
 ## Meta
 
