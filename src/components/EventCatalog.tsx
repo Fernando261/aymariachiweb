@@ -21,6 +21,14 @@ const eventDateFormatter = new Intl.DateTimeFormat('sv-SE', {
   day: '2-digit',
 });
 
+const standardServices = groupRates.map((rate) => ({ ...rate, id: String(rate.musicians) }));
+const fixedService = { ...serenadeAndMass, id: 'serenata-misa' };
+
+function availableServices(mariachi: Mariachi, occasion: Category | '' | null) {
+  const services = occasion === 'serenatas' || occasion === 'misas' ? [fixedService] : standardServices;
+  return services.filter((item) => mariachi.musicianCounts.includes(item.musicians));
+}
+
 function CatalogPhoto({ mariachi, illustrative }: { mariachi: Mariachi; illustrative: boolean }) {
   if (!mariachi.photo) return null;
   const alt = illustrative ? 'Fotografía ilustrativa de mariachis' : `Presentación de ${mariachi.alias}`;
@@ -43,7 +51,7 @@ export default function EventCatalog({ category, onCategoryChange }: {
   const optionButtons = useRef(new Map<string, HTMLButtonElement>());
   const usingExamples = mariachis.length === 0;
   const catalog = usingExamples ? demoMariachis : mariachis;
-  const visible = catalog.filter((item) => item.active && groupRates.some((rate) => item.musicianCounts.includes(rate.musicians)) &&
+  const visible = catalog.filter((item) => item.active && availableServices(item, category).length > 0 &&
     (!category || item.categories.includes(category)));
   const selected = visible.find((item) => item.code === selectedCode);
   const categoryLabel = categories.find((item) => item.id === category)?.label;
@@ -51,12 +59,8 @@ export default function EventCatalog({ category, onCategoryChange }: {
   const [requestCategory, setRequestCategory] = useState<Category | ''>('');
   const occasion = category ?? requestCategory;
   const occasionLabel = categories.find((item) => item.id === occasion)?.label;
-  const rates = groupRates.filter((rate) => selected?.musicianCounts.includes(rate.musicians));
-  const allowsSerenadeAndMass = (occasion === 'serenatas' || occasion === 'misas') &&
-    selected?.musicianCounts.includes(serenadeAndMass.musicians);
-  const rate = service === 'serenata-misa' && allowsSerenadeAndMass
-    ? serenadeAndMass
-    : rates.find((item) => String(item.musicians) === service);
+  const services = selected ? availableServices(selected, occasion) : [];
+  const rate = services.find((item) => item.id === service);
   const area = areas.find((item) => item.id === eventArea);
   const price = rate ? formatMxn(rate.price) : '';
   const needsQuote = eventArea === 'outside';
@@ -113,7 +117,7 @@ export default function EventCatalog({ category, onCategoryChange }: {
           <h4>{item.alias}</h4>
           {item.description && <p>{item.description}</p>}
           {item.zone && <p>Zona: {item.zone}</p>}
-          <p>Formaciones disponibles: {groupRates.filter((rate) => item.musicianCounts.includes(rate.musicians)).map((rate) => rate.name).join(', ')}</p>
+          <p>Servicios disponibles: {availableServices(item, category).map((rate) => rate.name).join(', ')}</p>
           <button type="button" ref={(node) => { if (node) optionButtons.current.set(item.code, node); else optionButtons.current.delete(item.code); }} onClick={() => { setService(''); setRequestCategory(''); setSelectedCode(item.code); }}>Elegir {item.alias}</button>
         </li>)}</ul> : <div className="catalog-card"><h4>Estamos preparando las opciones</h4><p>Aún no hay mariachis disponibles en este listado. Puedes cambiar de categoría o <a href="#contacto">contactarnos</a> para hablar de tu evento.</p></div>
       ) : (
@@ -124,14 +128,18 @@ export default function EventCatalog({ category, onCategoryChange }: {
           {selected.description && <p>{selected.description}</p>}
           {selected.zone && <p>Zona: {selected.zone}</p>}
           {!category && <label>Tipo de ocasión<select required value={requestCategory} onChange={(event) => {
-            setRequestCategory(event.target.value as Category | '');
-            if (service === 'serenata-misa') setService('');
-          }}><option value="">Elige la ocasión</option>{categories.filter((item) => selected.categories.includes(item.id)).map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>}
+            const nextOccasion = event.target.value as Category | '';
+            setRequestCategory(nextOccasion);
+            if (!availableServices(selected, nextOccasion).some((item) => item.id === service)) setService('');
+          }}><option value="">Elige la ocasión</option>{categories.filter((item) => selected.categories.includes(item.id) && availableServices(selected, item.id).length > 0).map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>}
           <label><span id="catalog-service-label">Servicio</span>
             <select aria-labelledby="catalog-service-label" required value={service} onChange={(event) => setService(event.target.value)}>
               <option value="">Elige el servicio</option>
-              {rates.map((item) => <option key={item.musicians} value={item.musicians}>{item.name} · {formatMxn(item.price)}</option>)}
-              {allowsSerenadeAndMass && <option value="serenata-misa">{serenadeAndMass.name} · {serenadeAndMass.musicians} músicos · {formatMxn(serenadeAndMass.price)}</option>}
+              {services.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} · {item.id === fixedService.id && `${item.musicians} músicos · `}{formatMxn(item.price)}
+                </option>
+              ))}
             </select>
           </label>
           <fieldset className="catalog-event">
