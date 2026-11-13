@@ -148,7 +148,7 @@ Cuando el arreglo de grupos aprobados está vacío, «Guía para tu evento» mue
 
 Configura únicamente el número oficial en `company.whatsappNumber` de `src/config/site.ts` (indicativo internacional, solo dígitos). Si sigue vacío, la solicitud permanece deshabilitada. Los enlaces generales de contacto conservan su mensaje original.
 
-La web pide ocasión, grupo, servicio, fecha, hora de Guadalajara, municipio, ubicación y zona del evento. Las tarifas, la tanda de 50 minutos, el mínimo de dos horas fuera del Periférico y el depósito de confirmación se configuran en `src/config/service-prices.ts`. Para servicios fuera del Periférico la solicitud incluye la tarifa publicada y deja el total por cotizar. El mensaje empieza con `Solicitud web · AYM-01` y envía un campo por línea en un orden fijo, listo para una futura integración con la API de WhatsApp. El botón abre el mensaje precargado y el visitante confirma el envío. Las respuestas automáticas requieren conectar la API y un webhook por separado.
+La web pide ocasión, grupo, servicio, fecha, hora de Guadalajara, municipio, ubicación y zona del evento. Las tarifas, la tanda de 50 minutos, el mínimo de dos horas fuera del Periférico y el depósito de confirmación se configuran en `src/config/service-prices.ts`. Para servicios fuera del Periférico la solicitud incluye la tarifa publicada y deja el total por cotizar. El mensaje empieza con `Solicitud web · AYM-01` y presenta un campo por línea bajo los encabezados Servicio elegido, Datos del evento y Tarifa y depósito. El botón abre el mensaje precargado y el visitante confirma el envío. Las respuestas automáticas requieren conectar la API y un webhook por separado.
 
 ### Pruebas reproducibles
 

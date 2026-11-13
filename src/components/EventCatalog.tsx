@@ -67,6 +67,10 @@ export default function EventCatalog({ category, onCategoryChange }: {
   const canRequest = !!selected && !!occasion && selected.categories.includes(occasion) && !!rate && !!area && validEvent;
   const message = canRequest ? [
     'Solicitud web · AYM-01',
+    `🎺 *${company.name}*`,
+    '¡Hola! Me gustaría solicitar mariachi para mi evento.',
+    '',
+    '🎶 *Servicio elegido*',
     `Categoría: ${occasionLabel ?? ''}`,
     usingExamples
       ? `Referencia ilustrativa: ${selected.alias} (ejemplo)`
@@ -74,14 +78,20 @@ export default function EventCatalog({ category, onCategoryChange }: {
     `Servicio: ${rate.name}`,
     `Músicos: ${rate.musicians}`,
     `Duración: ${area.duration}`,
-    `Tarifa publicada: ${price}`,
-    ...(needsQuote ? ['Total del servicio: por cotizar'] : []),
-    `Depósito al confirmar: ${formatMxn(confirmationDeposit)}`,
+    '',
+    '📍 *Datos del evento*',
     `Fecha: ${eventDate}`,
     `Hora (Guadalajara): ${eventTime}`,
     `Municipio: ${municipality}`,
     `Ubicación: ${location.trim()}`,
     `Zona del evento: ${area.label}`,
+    '',
+    '💳 *Tarifa y depósito*',
+    `Tarifa publicada: ${price}`,
+    ...(needsQuote ? ['Total del servicio: por cotizar'] : []),
+    `Depósito al confirmar: ${formatMxn(confirmationDeposit)}`,
+    '',
+    '¿Me pueden confirmar la disponibilidad? ¡Gracias!',
   ].join('\n') : '';
   const contactUrl = buildWhatsAppUrl(company.whatsappNumber, message);
 

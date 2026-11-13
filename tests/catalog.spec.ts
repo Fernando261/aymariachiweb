@@ -69,7 +69,31 @@ for (const width of [320, 390, 1440]) test(`filtrado, cambio de grupo, resumen y
   const request = area.getByRole('link', { name: 'Enviar solicitud' });
   const url = new URL((await request.getAttribute('href'))!);
   expect(url.hostname).toBe('wa.me'); expect(url.pathname).toBe('/5210000000000');
-  expect(url.searchParams.get('text')).toBe('Solicitud web · AYM-01\nCategoría: Serenatas\nMariachi: Mariachi #01 (TEST-01)\nServicio: Quinteto\nMúsicos: 5\nDuración: 50 minutos\nTarifa publicada: $3,300 MXN\nDepósito al confirmar: $500 MXN\nFecha: 2099-08-15\nHora (Guadalajara): 19:30\nMunicipio: Zapopan\nUbicación: Colonia Centro\nZona del evento: Dentro del Periférico');
+  expect(url.searchParams.get('text')).toBe([
+    'Solicitud web · AYM-01',
+    '🎺 *Ay! Mariachi Para Todos*',
+    '¡Hola! Me gustaría solicitar mariachi para mi evento.',
+    '',
+    '🎶 *Servicio elegido*',
+    'Categoría: Serenatas',
+    'Mariachi: Mariachi #01 (TEST-01)',
+    'Servicio: Quinteto',
+    'Músicos: 5',
+    'Duración: 50 minutos',
+    '',
+    '📍 *Datos del evento*',
+    'Fecha: 2099-08-15',
+    'Hora (Guadalajara): 19:30',
+    'Municipio: Zapopan',
+    'Ubicación: Colonia Centro',
+    'Zona del evento: Dentro del Periférico',
+    '',
+    '💳 *Tarifa y depósito*',
+    'Tarifa publicada: $3,300 MXN',
+    'Depósito al confirmar: $500 MXN',
+    '',
+    '¿Me pueden confirmar la disponibilidad? ¡Gracias!',
+  ].join('\n'));
   // No se abre WhatsApp ni se envía ningún mensaje durante las pruebas.
   await area.getByRole('button', { name: 'Volver al listado' }).click();
   await expect(area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true })).toBeFocused();
@@ -113,7 +137,8 @@ test('perfiles de ejemplo: WhatsApp prepara una consulta de disponibilidad', asy
   expect(url.hostname).toBe('wa.me');
   expect(url.pathname).toBe('/5210000000000');
   expect(url.searchParams.get('text')).toContain('Referencia ilustrativa: Mariachi #01 (ejemplo)');
-  expect(url.searchParams.get('text')).toContain('Servicio: Cuarteto\nMúsicos: 4\nDuración: 50 minutos\nTarifa publicada: $2,800 MXN');
+  expect(url.searchParams.get('text')).toContain('Servicio: Cuarteto\nMúsicos: 4\nDuración: 50 minutos');
+  expect(url.searchParams.get('text')).toContain('💳 *Tarifa y depósito*\nTarifa publicada: $2,800 MXN');
 });
 
 test('sin número: solicitud deshabilitada y contacto existente conservado', async ({ page }) => {
@@ -160,7 +185,8 @@ test('Serenata y misa fuera del Periférico aplica el mínimo y deja el total po
   await expect(summary).toContainText('Por cotizar');
   const url = new URL((await area.getByRole('link', { name: 'Enviar solicitud' }).getAttribute('href'))!);
   expect(url.pathname).toBe('/523348265069');
-  expect(url.searchParams.get('text')).toContain('Duración: 2 horas (mínimo)\nTarifa publicada: $3,800 MXN\nTotal del servicio: por cotizar\nDepósito al confirmar: $500 MXN');
+  expect(url.searchParams.get('text')).toContain('Duración: 2 horas (mínimo)');
+  expect(url.searchParams.get('text')).toContain('💳 *Tarifa y depósito*\nTarifa publicada: $3,800 MXN\nTotal del servicio: por cotizar\nDepósito al confirmar: $500 MXN');
   await area.getByRole('button', { name: 'Celebraciones', exact: true }).click();
   await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
   await expect(area.getByLabel('Servicio', { exact: true }).locator('option[value="serenata-misa"]')).toHaveCount(0);
