@@ -120,7 +120,14 @@ export class ReplyOnce {
       }
       // A definite rejection can be retried. Retain the claim on ambiguous failures.
       if (response.status < 500) await this.storage.delete('claimed');
-      console.error('WhatsApp API HTTP status', response.status);
+      const payload = await response.json().catch(() => null);
+      const code = payload?.error?.code;
+      const subcode = payload?.error?.error_subcode;
+      console.error('wa:graph_send_failed', {
+        status: response.status,
+        code: Number.isSafeInteger(code) ? code : null,
+        subcode: Number.isSafeInteger(subcode) ? subcode : null,
+      });
     } catch {
       console.error('WhatsApp API request did not complete');
     }
