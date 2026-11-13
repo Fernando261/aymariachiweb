@@ -8,6 +8,7 @@ import MariachiScene from './components/MariachiScene';
 import EventCatalog from './components/EventCatalog';
 import { type Category } from './config/mariachis';
 import { usePageMotion, useReducedMotion } from './components/Motion';
+import { confirmationDeposit, formatMxn, groupRates, outsideMinimumMinutes, serenadeAndMass, setMinutes } from './config/service-prices';
 import { company, whatsAppUrl } from './config/site';
 
 const logoUrl = `${import.meta.env.BASE_URL}logo-ay-mariachi.png`;
@@ -238,9 +239,16 @@ export default function App() {
               <p className="section-kicker">03 / PREPARA TU MOMENTO</p>
               <Ornament className="ornament--left" />
               <h2 className="section-title" id="guide-title">Guía para <em>tu evento.</em></h2>
-              <p className="section-body">Cada celebración tiene su propio ritmo. Piensa en la ocasión, el espacio y el estilo que imaginas para elegir el acompañamiento musical de tu momento.</p>
-              <p className="section-body">Explora las opciones por ocasión y prepara tu solicitud. La disponibilidad y los detalles de tu evento se confirman en WhatsApp.</p>
-              <a className="button button--outline" href="#contacto">Hablemos de tu evento <ArrowUpRight size={18} /></a>
+              <p className="section-body">Elige la ocasión, el mariachi y el servicio. Agrega la fecha, hora y ubicación para preparar tu solicitud por WhatsApp.</p>
+              <h3 className="guide-rates-title">Precios del servicio</h3>
+              <dl className="guide-rates">
+                {groupRates.map((rate) => (
+                  <div key={rate.musicians}><dt>{rate.name}</dt><dd>{formatMxn(rate.price)}</dd></div>
+                ))}
+                <div><dt>{serenadeAndMass.name} · {serenadeAndMass.musicians} músicos</dt><dd>{formatMxn(serenadeAndMass.price)}</dd></div>
+              </dl>
+              <p className="section-body">El servicio se realiza en tandas de {setMinutes} minutos. Fuera del Periférico, el servicio es de mínimo {outsideMinimumMinutes / 60} horas.</p>
+              <p className="section-body">Al confirmar, se hace un depósito de <strong>{formatMxn(confirmationDeposit)}</strong>.</p>
             </div>
             <EventCatalog key={catalogVisit} category={category} onCategoryChange={setCategory} />
           </div>

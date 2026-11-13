@@ -15,6 +15,14 @@ async function fixtureWhatsApp(page: Page, number: string) {
     await route.fulfill({ response, body });
   });
 }
+async function fillEventDetails(page: Page, date = '2099-08-15') {
+  const area = catalog(page);
+  await area.getByLabel('Fecha del evento').fill(date);
+  await area.getByLabel('Hora del evento (Guadalajara)').fill('19:30');
+  await area.getByLabel('Municipio').selectOption('Zapopan');
+  await area.getByLabel('Ubicación del evento').fill('Colonia Centro');
+  await area.getByLabel('Zona del evento').selectOption('inside');
+}
 async function enterCategory(page: Page, label: string, keyboard = false) {
   const link = page.locator('.experience-card').filter({ has: page.getByRole('heading', { name: label, exact: true }) });
   if (keyboard) { await link.focus(); await page.keyboard.press('Enter'); } else await link.click();
@@ -24,11 +32,12 @@ async function enterCategory(page: Page, label: string, keyboard = false) {
 
 test.beforeEach(async ({ page }) => { await page.route('https://**', (route) => route.abort()); });
 
-for (const path of ['/', '/aymariachiweb/']) test(`build real: perfiles de ejemplo y tres categorías ${path}`, async ({ page }) => {
+for (const path of ['/', '/aymariachiweb/']) test(`build real: perfiles de ejemplo y trece categorías ${path}`, async ({ page }) => {
   await page.goto(`http://127.0.0.1:${path === '/' ? 4181 : 4182}${path}`);
   await expect(catalog(page).getByText('Perfiles de ejemplo', { exact: true })).toBeVisible();
-  for (const { id, label } of categories) {
-    await enterCategory(page, label, true);
+  for (const [index, { id, label }] of categories.entries()) {
+    if (index < 3) await enterCategory(page, label, true);
+    else await catalog(page).getByRole('button', { name: label, exact: true }).click();
     const examples = demoMariachis.filter((mariachi) => mariachi.categories.includes(id));
     await expect(catalog(page).locator('.catalog-list h4')).toHaveText(examples.map(({ alias }) => alias));
   }
@@ -51,38 +60,36 @@ for (const width of [320, 390, 1440]) test(`filtrado, cambio de grupo, resumen y
   await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
   await expect(area.getByRole('heading', { name: 'Mariachi #01', exact: true })).toBeFocused();
   await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
-  await expect(area.getByLabel('Número de músicos').locator('option')).toHaveText(['Elige la cantidad', '3 músicos', '5 músicos']);
-  await area.getByLabel('Número de músicos').selectOption('5');
-  await area.getByLabel('Duración (opcional)').selectOption('60');
-  await expect(area.locator('.catalog-summary')).toContainText('60 minutos');
-  await area.screenshot({ path: `/tmp/w3-catalog-${width}.png` });
+  await expect(area.getByLabel('Servicio', { exact: true }).locator('option')).toHaveText(['Elige el servicio', 'Trío · $2,300 MXN', 'Quinteto · $3,300 MXN', 'Serenata y misa · 5 músicos · $3,800 MXN']);
+  await area.getByLabel('Servicio', { exact: true }).selectOption('5');
+  await fillEventDetails(page, '2000-01-01');
+  await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
+  await fillEventDetails(page);
+  await expect(area.locator('.catalog-summary')).toContainText('50 minutos');
   const request = area.getByRole('link', { name: 'Enviar solicitud' });
   const url = new URL((await request.getAttribute('href'))!);
   expect(url.hostname).toBe('wa.me'); expect(url.pathname).toBe('/5210000000000');
-  expect(url.searchParams.get('text')).toBe('¡Hola! Me gustaría solicitar una presentación de mariachi.\nCategoría: Serenatas\nMariachi: Mariachi #01 (TEST-01)\nMúsicos: 5\nDuración: 60 minutos\nQuisiera consultar disponibilidad y organizar los detalles.');
+  expect(url.searchParams.get('text')).toBe('Solicitud web · AYM-01\nCategoría: Serenatas\nMariachi: Mariachi #01 (TEST-01)\nServicio: Quinteto\nMúsicos: 5\nDuración: 50 minutos\nTarifa publicada: $3,300 MXN\nDepósito al confirmar: $500 MXN\nFecha: 2099-08-15\nHora (Guadalajara): 19:30\nMunicipio: Zapopan\nUbicación: Colonia Centro\nZona del evento: Dentro del Periférico');
   // No se abre WhatsApp ni se envía ningún mensaje durante las pruebas.
   await area.getByRole('button', { name: 'Volver al listado' }).click();
   await expect(area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true })).toBeFocused();
   await area.getByRole('button', { name: 'Elegir Mariachi #02', exact: true }).click();
-  await expect(area.getByLabel('Número de músicos').locator('option')).toHaveText(['Elige la cantidad', '7 músicos']);
-  await expect(area.getByLabel('Duración (opcional)')).toHaveCount(0);
+  await expect(area.getByLabel('Servicio', { exact: true }).locator('option')).toHaveText(['Elige el servicio', 'Sexteto · $3,800 MXN']);
   await expect(area.locator('.catalog-summary')).toContainText('Por elegir');
-  await area.getByLabel('Número de músicos').selectOption('7');
-  const noDuration = new URL((await area.getByRole('link', { name: 'Enviar solicitud' }).getAttribute('href'))!);
-  expect(noDuration.searchParams.get('text')).not.toContain('Duración:');
+  await area.getByLabel('Servicio', { exact: true }).selectOption('6');
+  await expect(area.getByRole('link', { name: 'Enviar solicitud' })).toBeVisible();
   await area.getByRole('button', { name: 'Celebraciones', exact: true }).click();
   await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
-  await expect(area.getByLabel('Número de músicos')).toHaveValue('');
-  await expect(area.getByLabel('Duración (opcional)')).toHaveValue('');
+  await expect(area.getByLabel('Servicio', { exact: true })).toHaveValue('');
   await area.getByRole('button', { name: 'Todas', exact: true }).click();
   await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
-  await area.getByLabel('Número de músicos').selectOption('3');
+  await area.getByLabel('Servicio', { exact: true }).selectOption('3');
   await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
   await area.getByLabel('Tipo de ocasión').selectOption('celebraciones');
   await expect(area.getByRole('link', { name: 'Enviar solicitud' })).toBeVisible();
   await enterCategory(page, 'Serenatas', true);
   await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
-  await area.getByLabel('Número de músicos').selectOption('3');
+  await area.getByLabel('Servicio', { exact: true }).selectOption('3');
   await enterCategory(page, 'Serenatas', true);
   await expect(area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true })).toBeVisible();
   await expect(area.locator('.catalog-summary')).toHaveCount(0);
@@ -96,13 +103,17 @@ test('perfiles de ejemplo: WhatsApp prepara una consulta de disponibilidad', asy
   await enterCategory(page, 'Serenatas');
   const area = catalog(page);
   await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
-  await area.getByLabel('Número de músicos').selectOption('4');
+  await area.getByLabel('Servicio', { exact: true }).selectOption('4');
+  await fillEventDetails(page);
+  await area.getByLabel('Ubicación del evento').fill('   ');
+  await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
+  await area.getByLabel('Ubicación del evento').fill('Colonia Centro');
   const request = area.getByRole('link', { name: 'Enviar solicitud' });
   const url = new URL((await request.getAttribute('href'))!);
   expect(url.hostname).toBe('wa.me');
   expect(url.pathname).toBe('/5210000000000');
   expect(url.searchParams.get('text')).toContain('Referencia ilustrativa: Mariachi #01 (ejemplo)');
-  expect(url.searchParams.get('text')).toContain('Músicos: 4');
+  expect(url.searchParams.get('text')).toContain('Servicio: Cuarteto\nMúsicos: 4\nDuración: 50 minutos\nTarifa publicada: $2,800 MXN');
 });
 
 test('sin número: solicitud deshabilitada y contacto existente conservado', async ({ page }) => {
@@ -110,7 +121,8 @@ test('sin número: solicitud deshabilitada y contacto existente conservado', asy
   await page.goto('/');
   await enterCategory(page, 'Serenatas');
   await catalog(page).getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
-  await catalog(page).getByLabel('Número de músicos').selectOption('3');
+  await catalog(page).getByLabel('Servicio', { exact: true }).selectOption('3');
+  await fillEventDetails(page);
   await expect(catalog(page).getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
   await expect(catalog(page).getByText('Las solicitudes por WhatsApp aún no están disponibles.', { exact: false })).toBeVisible();
   await expect(page.locator('a[href*="wa.me"]')).toHaveCount(0);
@@ -128,7 +140,29 @@ test('teclado: filtros, selección y regreso al listado', async ({ page }) => {
   await page.keyboard.press('Enter');
   await expect(catalog(page).getByRole('heading', { name: 'Mariachi #01', exact: true })).toBeFocused();
   await page.keyboard.press('Tab'); await page.keyboard.press('ArrowDown');
-  await expect(catalog(page).getByLabel('Número de músicos')).toHaveValue('3');
+  await expect(catalog(page).getByLabel('Servicio', { exact: true })).toHaveValue('3');
   await catalog(page).getByRole('button', { name: 'Volver al listado' }).focus(); await page.keyboard.press('Enter');
   await expect(catalog(page).getByRole('button', { name: 'Elegir Mariachi #01', exact: true })).toBeFocused();
+});
+
+test('Serenata y misa fuera del Periférico aplica el mínimo y deja el total por cotizar', async ({ page }) => {
+  await page.goto('/');
+  const area = catalog(page);
+  await area.getByRole('button', { name: 'Misas', exact: true }).click();
+  await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
+  await area.getByLabel('Servicio', { exact: true }).selectOption('serenata-misa');
+  await fillEventDetails(page);
+  await area.getByLabel('Zona del evento').selectOption('outside');
+  const summary = area.locator('.catalog-summary');
+  await expect(summary).toContainText('Serenata y misa · 5 músicos');
+  await expect(summary).toContainText('2 horas (mínimo)');
+  await expect(summary).toContainText('$3,800 MXN');
+  await expect(summary).toContainText('Por cotizar');
+  const url = new URL((await area.getByRole('link', { name: 'Enviar solicitud' }).getAttribute('href'))!);
+  expect(url.pathname).toBe('/523348265069');
+  expect(url.searchParams.get('text')).toContain('Duración: 2 horas (mínimo)\nTarifa publicada: $3,800 MXN\nTotal del servicio: por cotizar\nDepósito al confirmar: $500 MXN');
+  await area.getByRole('button', { name: 'Celebraciones', exact: true }).click();
+  await area.getByRole('button', { name: 'Elegir Mariachi #01', exact: true }).click();
+  await expect(area.getByLabel('Servicio', { exact: true }).locator('option[value="serenata-misa"]')).toHaveCount(0);
+  await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
 });

@@ -195,6 +195,10 @@ section { scroll-margin-top: 76px; }
 .guide-section { background: radial-gradient(ellipse at 76% 55%, rgba(97,57,25,.14), transparent 45%), #0e0c0b; }
 .guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
 @media (max-width: 900px) { .guide-grid { grid-template-columns: 1fr; gap: 40px; } }
+.guide-rates-title { color: var(--gold-bright); font: 500 24px/1.2 var(--serif); margin: 28px 0 12px; }
+.guide-rates { margin: 0 0 18px; max-width: 400px; color: #f0dfbb; }
+.guide-rates div { display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.guide-rates dd { margin: 0; font-weight: 600; white-space: nowrap; }
 .catalog { min-width: 0; padding: 28px; border: 1px solid var(--line); border-radius: 12px; background: radial-gradient(circle at top, #292015, #100d0a); }
 .catalog h3 { font: 500 34px/1.1 var(--serif); color: var(--gold-bright); margin: 0 0 24px; }
 .catalog h4 { font: 500 28px/1.2 var(--serif); margin: 18px 0; color: var(--gold-bright); }
@@ -208,7 +212,11 @@ section { scroll-margin-top: 76px; }
 .catalog-card { padding: 20px; border: 1px solid var(--line); background: #100d0aaa; overflow-wrap: anywhere; }
 .catalog-card img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .catalog label { display: grid; gap: 8px; margin: 20px 0; }
-.catalog select { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--gold-muted); background: #17110d; color: #f0dfbb; font: inherit; }
+.catalog input, .catalog select { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--gold-muted); background: #17110d; color: #f0dfbb; font: inherit; }
+.catalog input { color-scheme: dark; }
+.catalog-event { min-width: 0; padding: 0; margin: 24px 0 0; border: 0; }
+.catalog-event legend { color: var(--gold-bright); font-weight: 600; padding: 0; }
+.catalog-event p { margin-bottom: 0; }
 .catalog-summary { border-block: 1px solid var(--line); margin-top: 24px; padding: 18px 0; }
 .catalog-summary h5 { font-size: 16px; margin: 0 0 14px; }
 .catalog-summary dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; }
