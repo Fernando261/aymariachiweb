@@ -11,6 +11,7 @@ export const categories = [
   { id: 'fiestas-patrias', label: 'Fiestas patrias' },
   { id: 'empresariales', label: 'Eventos empresariales' },
   { id: 'homenajes', label: 'Homenajes' },
+  { id: 'misas', label: 'Misas' },
 ] as const;
 
 export type Category = typeof categories[number]['id'];
@@ -26,7 +27,6 @@ export type Mariachi = {
   description?: string;
   /** Ruta relativa a public/, sin barra inicial. */
   photo?: string;
-  durationMinutes?: readonly number[];
 };
 
 // Catálogo de grupos aprobados. Mientras esté vacío se muestran referencias ilustrativas.

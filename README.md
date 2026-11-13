@@ -132,12 +132,11 @@ Cada objeto debe cumplir el tipo `Mariachi`:
 | `code` | Código público único y estable; no lo reutilices para otro grupo. |
 | `alias` | Alias público con el formato `Mariachi #…`. Nunca el nombre real. |
 | `categories` | Una o más de las categorías de `src/config/mariachis.ts`. |
-| `musicianCounts` | Cantidades de músicos aprobadas, enteros positivos sin duplicados. No dejes vacío un grupo disponible. |
+| `musicianCounts` | Cantidades aprobadas entre 3 y 6 músicos, sin duplicados. Los grupos necesitan al menos una formación con tarifa publicada. |
 | `active` | `true` para mostrarlo; `false` lo oculta de todos los filtros. |
 | `zone` | Opcional: solo zona de servicio pública aprobada, nunca dirección privada. |
 | `description` | Opcional: una descripción breve del repertorio o el tipo de evento. |
 | `photo` | Opcional: ruta relativa a `public/`, sin barra inicial; imagen autorizada sin datos privados. Se aplica la base de Vite. |
-| `durationMinutes` | Duraciones aprobadas en minutos, enteros positivos sin duplicados. Un grupo necesita al menos una duración para aparecer. |
 
 No se hacen consultas a servicios, no hay registro de clientes ni persistencia de solicitudes. Este catálogo es estático y manual; actualizarlo requiere una nueva compilación. Mantén los nombres reales y los datos privados fuera del repositorio.
 
@@ -149,7 +148,7 @@ Cuando el arreglo de grupos aprobados está vacío, «Guía para tu evento» mue
 
 Configura únicamente el número oficial en `company.whatsappNumber` de `src/config/site.ts` (indicativo internacional, solo dígitos). Si sigue vacío, la solicitud permanece deshabilitada. Los enlaces generales de contacto conservan su mensaje original.
 
-La web pide ocasión, grupo, cantidad de músicos, duración exacta, fecha, hora de Guadalajara y municipio. El mensaje empieza con `Solicitud web · AYM-01` y envía un campo por línea en un orden fijo, listo para una futura integración con la API de WhatsApp. El botón abre el mensaje precargado y el visitante confirma el envío. Las respuestas automáticas requieren conectar la API y un webhook por separado.
+La web pide ocasión, grupo, servicio, fecha, hora de Guadalajara, municipio, ubicación y zona del evento. Las tarifas, la tanda de 50 minutos, el mínimo de dos horas fuera del Periférico y el depósito de confirmación se configuran en `src/config/service-prices.ts`. Para servicios fuera del Periférico la solicitud incluye la tarifa publicada y deja el total por cotizar. El mensaje empieza con `Solicitud web · AYM-01` y envía un campo por línea en un orden fijo, listo para una futura integración con la API de WhatsApp. El botón abre el mensaje precargado y el visitante confirma el envío. Las respuestas automáticas requieren conectar la API y un webhook por separado.
 
 ### Pruebas reproducibles
 
