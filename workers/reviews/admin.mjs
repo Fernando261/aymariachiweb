@@ -35,7 +35,8 @@ a{color:#f4cf8c}header{display:flex;align-items:center;justify-content:space-bet
       'content-type': 'text/html; charset=utf-8',
       'cache-control': 'no-store',
       'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
-      'referrer-policy': 'no-referrer',
+      // The admin POST checks Origin, which no-referrer suppresses for form submissions.
+      'referrer-policy': 'same-origin',
       'x-content-type-options': 'nosniff',
       'x-robots-tag': 'noindex, nofollow',
     },
