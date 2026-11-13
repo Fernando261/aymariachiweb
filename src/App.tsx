@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import MariachiScene from './components/MariachiScene';
 import EventCatalog from './components/EventCatalog';
+import MariachiApplication from './components/MariachiApplication';
 import { type Category } from './config/mariachis';
 import { usePageMotion, useReducedMotion } from './components/Motion';
 import { confirmationDeposit, formatMxn, groupRates, outsideMinimumMinutes, serenadeAndMass, setMinutes } from './config/service-prices';
@@ -106,6 +107,7 @@ export default function App() {
             <a href="#nosotros" onClick={closeMenu}>Nosotros</a>
             <a href="#experiencias" onClick={closeMenu}>Experiencias</a>
             <a href="#guia" onClick={closeMenu}>Guía para tu evento</a>
+            <a href="#unete" onClick={closeMenu}>Únete</a>
             <a href="#contacto" onClick={closeMenu} className="mobile-contact">Contáctanos</a>
           </div>
           <a className="nav-cta" href="#contacto">Hablemos <ArrowUpRight size={16} /></a>
@@ -254,6 +256,8 @@ export default function App() {
           </div>
         </section>
 
+        <MariachiApplication />
+
         {/* CONTACTO / REDES */}
         <section className="contact-section" id="contacto" aria-labelledby="contact-title">
           <div className="container">
@@ -281,7 +285,7 @@ export default function App() {
             <img src={logoUrl} alt="Ay! Mariachi Para Todos" loading="lazy" />
             <p>La tradición que nos une.<br />La música que nos mueve.</p>
           </div>
-          <div className="footer-column"><h3>EXPLORA</h3><a href="#inicio">Inicio <ChevronRight size={14} /></a><a href="#nosotros">Nuestra esencia <ChevronRight size={14} /></a><a href="#experiencias">Experiencias <ChevronRight size={14} /></a><a href="#guia">Guía para tu evento <ChevronRight size={14} /></a></div>
+          <div className="footer-column"><h3>EXPLORA</h3><a href="#inicio">Inicio <ChevronRight size={14} /></a><a href="#nosotros">Nuestra esencia <ChevronRight size={14} /></a><a href="#experiencias">Experiencias <ChevronRight size={14} /></a><a href="#guia">Guía para tu evento <ChevronRight size={14} /></a><a href="#unete">Únete con tu mariachi <ChevronRight size={14} /></a></div>
           <div className="footer-column"><h3>HABLEMOS</h3><a href="#contacto">Contacto <ChevronRight size={14} /></a>{whatsApp && <a href={whatsApp} target="_blank" rel="noopener noreferrer">WhatsApp <ChevronRight size={14} /></a>}{company.instagram && <a href={company.instagram} target="_blank" rel="noopener noreferrer">Instagram <ChevronRight size={14} /></a>}<span>Guadalajara, Jalisco, México</span></div>
           <div className="footer-quote"><span>✦</span><p>Que nunca falte una canción para celebrar la vida.</p></div>
         </div>
