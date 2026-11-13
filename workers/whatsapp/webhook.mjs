@@ -36,17 +36,33 @@ export default {
     } catch {
       return new Response(null, { status: 400 });
     }
-    if (event?.object !== 'whatsapp_business_account') return new Response('OK');
+    if (event?.object !== 'whatsapp_business_account') {
+      console.info('wa:ignored_non_whatsapp_event');
+      return new Response('OK');
+    }
 
     for (const entry of event.entry ?? []) {
       for (const change of entry.changes ?? []) {
         const value = change.value;
-        if (change.field !== 'messages' || !env.WA_PHONE_NUMBER_ID ||
-            value?.metadata?.phone_number_id !== env.WA_PHONE_NUMBER_ID) continue;
-        for (const message of value.messages ?? []) {
+        if (change.field !== 'messages') continue;
+        if (!value?.messages?.length) {
+          console.info(value?.statuses?.length ? 'wa:status_update' : 'wa:no_incoming_messages');
+          continue;
+        }
+        if (!env.WA_PHONE_NUMBER_ID || value.metadata?.phone_number_id !== env.WA_PHONE_NUMBER_ID) {
+          console.info('wa:phone_number_id_mismatch');
+          continue;
+        }
+        for (const message of value.messages) {
           if (!message?.id || message.type !== 'text' ||
-              message.text?.body?.trim().toLowerCase() !== testPhrase ||
-              !env.WA_TEST_RECIPIENT || message.from !== env.WA_TEST_RECIPIENT) continue;
+              message.text?.body?.trim().toLowerCase() !== testPhrase) {
+            console.info('wa:test_message_mismatch');
+            continue;
+          }
+          if (!env.WA_TEST_RECIPIENT || message.from !== env.WA_TEST_RECIPIENT) {
+            console.info('wa:test_recipient_mismatch');
+            continue;
+          }
           const object = env.REPLIES.get(env.REPLIES.idFromName(message.id));
           const result = await object.fetch('https://internal/reply', {
             method: 'POST', body: message.from,
@@ -69,6 +85,7 @@ export class ReplyOnce {
     const env = this.env;
     if (!env.WA_ACCESS_TOKEN || !/^v\d+\.\d+$/.test(env.WA_GRAPH_API_VERSION ?? '') ||
         !/^\d+$/.test(env.WA_PHONE_NUMBER_ID ?? '')) {
+      console.error('wa:send_config_invalid');
       return new Response(null, { status: 503 });
     }
     const recipient = await request.text();
@@ -80,7 +97,10 @@ export class ReplyOnce {
       await txn.put('claimed', true);
       return true;
     });
-    if (!claimed) return new Response(null, { status: 204 });
+    if (!claimed) {
+      console.info('wa:reply_already_claimed');
+      return new Response(null, { status: 204 });
+    }
 
     try {
       const response = await fetch(
@@ -94,7 +114,10 @@ export class ReplyOnce {
           signal: AbortSignal.timeout(8000),
         },
       );
-      if (response.ok) return new Response(null, { status: 204 });
+      if (response.ok) {
+        console.info('wa:reply_accepted_by_meta');
+        return new Response(null, { status: 204 });
+      }
       // A definite rejection can be retried. Retain the claim on ambiguous failures.
       if (response.status < 500) await this.storage.delete('claimed');
       console.error('WhatsApp API HTTP status', response.status);
