@@ -52,9 +52,15 @@ ${error ? `<p role="alert">${escapeHtml(error)}</p>` : ''}
 <button type="submit">Entrar</button></form>`, status);
 }
 
-export function inboxPage(reviews, nextCursor, cursor, notice) {
+export function inboxPage(reviews, nextCursor, cursor, notice, showRejected) {
+  const rejectedParam = showRejected ? 'view=rejected' : '';
+  const startUrl = rejectedParam ? `/admin/resenas?${rejectedParam}` : '/admin/resenas';
   return page(`<header><h1>Moderación de reseñas</h1>
 <form method="post" action="/admin/resenas"><button name="action" value="logout">Cerrar sesión</button></form></header>
+<nav aria-label="Vistas de moderación">
+<a href="/admin/resenas"${showRejected ? '' : ' aria-current="page"'}>Bandeja</a> ·
+<a href="/admin/resenas?view=rejected"${showRejected ? ' aria-current="page"' : ''}>Rechazadas</a>
+</nav>
 ${notice ? '<p role="status">Se guardó el cambio.</p>' : ''}
 ${reviews.length ? reviews.map((review) => `<article>
 <h2>${escapeHtml(review.name)} · ${review.rating}/5 estrellas</h2>
@@ -63,10 +69,11 @@ ${reviews.length ? reviews.map((review) => `<article>
 <form method="post" action="/admin/resenas">
 <input type="hidden" name="id" value="${escapeHtml(review.id)}">
 <input type="hidden" name="cursor" value="${escapeHtml(cursor ?? '')}">
+${showRejected ? '<input type="hidden" name="view" value="rejected">' : ''}
 ${statusActions[review.status].map(([action, label]) => `<button name="action" value="${action}">${label}</button>`).join('')}
 </form></article>`).join('') : '<p>No hay reseñas en esta página.</p>'}
-${cursor ? '<p><a href="/admin/resenas">Volver al inicio de la bandeja</a></p>' : ''}
-${nextCursor ? `<p><a href="/admin/resenas?cursor=${encodeURIComponent(nextCursor)}">Ver más reseñas</a></p>` : ''}`);
+${cursor ? `<p><a href="${startUrl}">Volver al inicio</a></p>` : ''}
+${nextCursor ? `<p><a href="/admin/resenas?${rejectedParam ? rejectedParam + '&amp;' : ''}cursor=${encodeURIComponent(nextCursor)}">Ver más reseñas</a></p>` : ''}`);
 }
 
 export function adminError(message, status) {

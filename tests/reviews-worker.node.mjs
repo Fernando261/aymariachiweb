@@ -58,7 +58,16 @@ test('submit, moderate, hide, restore and reject a review', async () => {
   assert.equal((await call('/admin/resenas', { cookie, from: 'https://other.test', form: { id, action: 'approved' } })).status, 403);
   assert.equal((await call('/admin/resenas', { cookie: cookie + 'a', form: { id, action: 'approved' } })).status, 401);
   for (const action of ['rejected', 'approved', 'hidden', 'approved']) {
-    assert.equal((await call('/admin/resenas', { cookie, form: { id, action } })).status, 303);
+    const response = await call('/admin/resenas', { cookie, form: { id, action } });
+    assert.equal(response.status, 303);
+    if (action === 'rejected') {
+      assert.doesNotMatch(await (await call(response.headers.get('location'), { cookie })).text(), /Ana/);
+      assert.match(await (await call('/admin/resenas?view=rejected', { cookie })).text(), /Ana/);
+      assert.doesNotMatch(await (await call('/admin/resenas?view=rejected')).text(), /Ana/);
+    }
+    if (action === 'approved') {
+      assert.doesNotMatch(await (await call('/admin/resenas?view=rejected', { cookie })).text(), /Ana/);
+    }
     const { reviews } = await (await call('/api/resenas')).json();
     assert.equal(reviews.length, action === 'approved' ? 1 : 0);
     if (action === 'approved') {
