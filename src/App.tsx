@@ -7,6 +7,7 @@ import {
 import MariachiScene from './components/MariachiScene';
 import EventCatalog from './components/EventCatalog';
 import MariachiApplication from './components/MariachiApplication';
+import Reviews from './components/Reviews';
 import { type Category } from './config/mariachis';
 import { usePageMotion, useReducedMotion } from './components/Motion';
 import { confirmationDeposit, formatMxn, groupRates, outsideMinimumMinutes, serenadeAndMass, setMinutes } from './config/service-prices';
@@ -107,6 +108,7 @@ export default function App() {
             <a href="#nosotros" onClick={closeMenu}>Nosotros</a>
             <a href="#experiencias" onClick={closeMenu}>Experiencias</a>
             <a href="#guia" onClick={closeMenu}>Guía para tu evento</a>
+            <a href="#opiniones" onClick={closeMenu}>Opiniones</a>
             <a href="#unete" onClick={closeMenu}>Únete</a>
             <a href="#contacto" onClick={closeMenu} className="mobile-contact">Contáctanos</a>
           </div>
@@ -255,6 +257,8 @@ export default function App() {
             <EventCatalog key={catalogVisit} category={category} onCategoryChange={setCategory} />
           </div>
         </section>
+
+        <Reviews />
 
         <MariachiApplication />
 
