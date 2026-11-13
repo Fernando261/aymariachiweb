@@ -1,4 +1,5 @@
 const encoder = new TextEncoder();
+const graphSendTimeoutMs = 20_000;
 const testPhrase = 'prueba mariachi';
 const reply = '¡Hola! Recibimos tu mensaje. La respuesta automática de ¡Ay! Mariachi Para Todos ya funciona.';
 
@@ -104,6 +105,8 @@ export class ReplyOnce {
       return new Response(null, { status: 204 });
     }
 
+    const startedAt = Date.now();
+    const signal = AbortSignal.timeout(graphSendTimeoutMs);
     try {
       const response = await fetch(
         `https://graph.facebook.com/${env.WA_GRAPH_API_VERSION}/${env.WA_PHONE_NUMBER_ID}/messages`,
@@ -113,11 +116,11 @@ export class ReplyOnce {
           body: JSON.stringify({
             messaging_product: 'whatsapp', to: recipient, type: 'text', text: { body: reply },
           }),
-          signal: AbortSignal.timeout(8000),
+          signal,
         },
       );
       if (response.ok) {
-        console.info('wa:reply_accepted_by_meta');
+        console.info('wa:reply_accepted_by_meta', { elapsedMs: Date.now() - startedAt });
         return new Response(null, { status: 204 });
       }
       // A definite rejection can be retried. Retain the claim on ambiguous failures.
@@ -127,11 +130,14 @@ export class ReplyOnce {
       const subcode = payload?.error?.error_subcode;
       console.error('wa:graph_send_failed', {
         status: response.status,
+        elapsedMs: Date.now() - startedAt,
         code: Number.isSafeInteger(code) ? code : null,
         subcode: Number.isSafeInteger(subcode) ? subcode : null,
       });
     } catch {
-      console.error('WhatsApp API request did not complete');
+      console.error(signal.aborted ? 'wa:graph_send_timeout' : 'wa:graph_send_transport_error', {
+        elapsedMs: Date.now() - startedAt,
+      });
     }
     return new Response(null, { status: 503 });
   }
