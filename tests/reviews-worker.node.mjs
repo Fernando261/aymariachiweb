@@ -42,7 +42,9 @@ test('submit, moderate, hide, restore and reject a review', async () => {
   assert.equal((await call('/api/resenas', { body: draft })).status, 201);
   assert.deepEqual((await (await call('/api/resenas')).json()).reviews, []);
   const id = data.keys().next().value;
-  assert.doesNotMatch(await (await call('/admin/resenas')).text(), /Ana/);
+  const loginForm = await call('/admin/resenas');
+  assert.equal(loginForm.headers.get('referrer-policy'), 'same-origin');
+  assert.doesNotMatch(await loginForm.text(), /Ana/);
   assert.equal((await call('/admin/resenas', { form: { id, action: 'approved' } })).status, 401);
   const login = await call('/admin/resenas', { form: { action: 'login', password } });
   assert.equal(login.status, 303);
