@@ -238,14 +238,10 @@ for (const width of [320, 1440]) {
       '🎶 *Datos del grupo*',
       'Nombre del grupo: Mariachi Sol & Luna',
       'Cantidad de elementos: 7',
-      '',
-      '📎 *Datos que compartiremos en este chat*',
-      '• Número de tarjeta o CLABE para recibir pagos',
-      '• Foto formal del grupo completo',
-      '• Video del grupo completo tocando en vivo',
-      '',
-      '¿Nos pueden indicar el siguiente paso para completar la solicitud? ¡Gracias!',
+      'Número de tarjeta o CLABE para recibir pagos:',
     ].join('\n'));
+    await expect(section.getByText('Foto formal del grupo completo', { exact: true })).toBeVisible();
+    await expect(section.getByText('Video del grupo completo tocando en vivo', { exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
