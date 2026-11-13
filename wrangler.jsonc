@@ -1,8 +1,15 @@
 {
   "name": "aymariachiweb",
+  "main": "./workers/reviews/index.mjs",
   "compatibility_date": "2026-11-09",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/resenas", "/admin/resenas", "/admin/resenas/"]
   },
+  "kv_namespaces": [{ "binding": "REVIEWS" }],
+  "ratelimits": [
+    { "name": "REVIEWS_LIMIT", "namespace_id": "2026111301", "simple": { "limit": 5, "period": 60 } }
+  ],
   "previews": {}
 }

@@ -150,6 +150,20 @@ Configura únicamente el número oficial en `company.whatsappNumber` de `src/con
 
 La web pide ocasión, grupo, servicio, fecha, hora de Guadalajara, municipio, ubicación y zona del evento. Las tarifas, la tanda de 50 minutos, el mínimo de dos horas fuera del Periférico y el depósito de confirmación se configuran en `src/config/service-prices.ts`. Para servicios fuera del Periférico la solicitud incluye la tarifa publicada y deja el total por cotizar. El mensaje empieza con `Solicitud web · AYM-01` y presenta un campo por línea bajo los encabezados Servicio elegido, Datos del evento y Tarifa y depósito. El botón abre el mensaje precargado y el visitante confirma el envío. Las respuestas automáticas requieren conectar la API y un webhook por separado.
 
+### Reseñas de clientes
+
+El formulario de `/#opiniones` guarda cada reseña como pendiente en Workers KV. En `/admin/resenas` se puede aprobar, rechazar u ocultar una reseña y volver a publicarla. La API pública muestra las aprobadas. Los cambios en KV pueden tardar alrededor de un minuto o más en verse desde otras ubicaciones.
+
+Antes de publicar, agrega `REVIEWS_ADMIN_PASSWORD` como **Secret** en Cloudflare → **Workers & Pages → aymariachiweb → Settings → Variables and Secrets → Production**. Usa una clave aleatoria y exclusiva de 24 a 128 caracteres. Cambiarla invalida las sesiones de moderación. El Worker requiere ese secreto y los bindings `REVIEWS` y `REVIEWS_LIMIT` para habilitar las reseñas. Wrangler provisiona el namespace KV durante el despliegue si la credencial de Cloudflare tiene permiso para crearlo. Las vistas previas necesitan su propio namespace de prueba si se quiere usar la función allí.
+
+Para probar con almacenamiento local, crea `.dev.vars` con una clave de prueba, compila y ejecuta:
+
+```sh
+npm run build
+npx --yes wrangler@4.159.0 dev
+node --test tests/reviews-worker.node.mjs
+```
+
 ### Pruebas reproducibles
 
 ```sh

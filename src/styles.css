@@ -229,6 +229,20 @@ section { scroll-margin-top: 76px; }
 .mariachi-application .button { max-width: 100%; text-align: center; }
 .mariachi-application .button svg { flex: none; }
 
+.reviews-grid { align-items: start; }
+.reviews-list { margin-bottom: 20px; }
+.review-stars { margin: 0; color: var(--gold-bright); letter-spacing: 3px; }
+.reviews-list blockquote { margin: 10px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.review-author { margin-bottom: 0; color: #c4b6a2; font-size: 14px; }
+.review-form textarea { width: 100%; padding: 12px; border: 1px solid var(--gold-muted); background: #17110d; color: #f0dfbb; font: inherit; resize: vertical; }
+.review-form .catalog-event { margin-top: 0; }
+.review-ratings { display: flex; flex-wrap: wrap; gap: 6px; }
+.review-ratings label { display: flex; min-height: 44px; align-items: center; padding: 0 6px; margin: 6px 0 0; cursor: pointer; }
+.review-form input:is([type="radio"], [type="checkbox"]) { width: 16px; height: 16px; margin: 0; accent-color: var(--gold); }
+.review-ratings span[aria-hidden] { color: var(--gold-bright); }
+.review-form .review-consent { display: flex; align-items: start; gap: 10px; }
+.review-form .review-consent input[type="checkbox"] { flex: none; margin-top: 4px; }
+
 /* CONTACTO + REDES */
 .contact-section { background: radial-gradient(ellipse at 50% 12%, rgba(105,58,28,.22), transparent 48%), #15100d; padding: 130px 0 118px; position: relative; border-top: 1px solid rgba(224,172,74,.12); }
 .contact-section::before { content: ''; position: absolute; left: 50%; top: 0; transform: translateX(-50%); height: 1px; width: 55%; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .6; }
