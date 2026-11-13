@@ -225,6 +225,10 @@ section { scroll-margin-top: 76px; }
 .catalog .button:disabled { opacity: .5; cursor: not-allowed; }
 @media (max-width: 660px) { .catalog { padding: 16px; } .catalog-card { padding: 16px; } .catalog-summary dl { grid-template-columns: 1fr; gap: 4px; } .catalog-summary dd { margin-bottom: 8px; } }
 
+.mariachi-application__requirements { padding-inline-start: 22px; margin: 0 0 22px; color: #f0dfbb; font-size: 14px; line-height: 1.7; }
+.mariachi-application .button { max-width: 100%; text-align: center; }
+.mariachi-application .button svg { flex: none; }
+
 /* CONTACTO + REDES */
 .contact-section { background: radial-gradient(ellipse at 50% 12%, rgba(105,58,28,.22), transparent 48%), #15100d; padding: 130px 0 118px; position: relative; border-top: 1px solid rgba(224,172,74,.12); }
 .contact-section::before { content: ''; position: absolute; left: 50%; top: 0; transform: translateX(-50%); height: 1px; width: 55%; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .6; }

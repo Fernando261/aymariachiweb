@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import WhatsAppIcon from './WhatsAppIcon';
 import { demoMariachis } from '../config/demo-mariachis';
 import { categories, mariachis, type Category, type Mariachi } from '../config/mariachis';
 import {
@@ -19,10 +20,6 @@ const eventDateFormatter = new Intl.DateTimeFormat('sv-SE', {
   month: '2-digit',
   day: '2-digit',
 });
-
-function WhatsAppIcon() {
-  return <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11.9 11.9 0 0 0 12 0 12 12 0 0 0 1.6 18L0 24l6.2-1.6A12 12 0 0 0 24 12c0-3.2-1.2-6.2-3.5-8.5ZM12 22a10 10 0 0 1-5.1-1.4l-.4-.2-3.7 1 1-3.6-.3-.4A10 10 0 1 1 12 22Zm5.5-7.5c-.3-.1-1.8-.9-2.1-1-.3-.1-.5-.1-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.2 8.2 0 0 1-3.9-3.4c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.6l-1-2.3c-.2-.6-.5-.5-.7-.5H7.7c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.8 4.4 1.8.8 2.5.9 3.4.8.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4Z" /></svg>;
-}
 
 function CatalogPhoto({ mariachi, illustrative }: { mariachi: Mariachi; illustrative: boolean }) {
   if (!mariachi.photo) return null;

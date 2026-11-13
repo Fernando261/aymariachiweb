@@ -3,7 +3,7 @@ import { demoMariachis } from '../src/config/demo-mariachis';
 import { categories } from '../src/config/mariachis';
 import { fixtures } from './catalog-fixtures';
 
-const catalog = (page: Page) => page.locator('.catalog');
+const catalog = (page: Page) => page.locator('#guia .catalog');
 async function fixtureCatalog(page: Page, number = '') {
   await page.route('**/src/config/mariachis.ts', (route) => route.fulfill({ contentType: 'text/javascript', body: `export const categories = ${JSON.stringify(categories)}; export const mariachis = ${JSON.stringify(fixtures)};` }));
   await fixtureWhatsApp(page, number);
@@ -192,3 +192,50 @@ test('Serenata y misa fuera del Periférico aplica el mínimo y deja el total po
   await expect(area.getByLabel('Servicio', { exact: true }).locator('option[value="serenata-misa"]')).toHaveCount(0);
   await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
 });
+
+for (const width of [320, 1440]) {
+  test(`solicitud de ingreso de mariachi desde la navegación a ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    if (width === 320) await page.getByRole('button', { name: 'Abrir menú' }).click();
+    await page.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Únete', exact: true }).click();
+    await expect(page).toHaveURL(/#unete$/);
+    if (width === 320) await expect(page.getByRole('button', { name: 'Abrir menú' })).toHaveAttribute('aria-expanded', 'false');
+
+    const section = page.getByRole('region', { name: 'Únete con tu mariachi.' });
+    const name = section.getByLabel('Nombre del grupo');
+    const count = section.getByLabel('Cantidad de elementos');
+    const submit = 'Enviar solicitud para unirme';
+    await expect(section.getByRole('button', { name: submit })).toBeDisabled();
+    await name.fill('   ');
+    await count.fill('7');
+    await expect(section.getByRole('button', { name: submit })).toBeDisabled();
+    await name.fill('  Mariachi Sol & Luna  ');
+    for (const invalid of ['0', '-2', '2.5']) {
+      await count.fill(invalid);
+      await expect(section.getByRole('button', { name: submit })).toBeDisabled();
+    }
+    await count.fill('7');
+    const link = section.getByRole('link', { name: submit });
+    const url = new URL((await link.getAttribute('href'))!);
+    expect(url.origin).toBe('https://wa.me');
+    expect(url.pathname).toBe('/523348265069');
+    expect(url.searchParams.get('text')).toBe([
+      'Solicitud de grupo · AYM-02',
+      '🎺 *Ay! Mariachi Para Todos*',
+      '¡Hola! Queremos unir nuestro mariachi al catálogo.',
+      '',
+      '🎶 *Datos del grupo*',
+      'Nombre del grupo: Mariachi Sol & Luna',
+      'Cantidad de elementos: 7',
+      '',
+      '📎 *Datos que compartiremos en este chat*',
+      '• Número de tarjeta o CLABE para recibir pagos',
+      '• Foto formal del grupo completo',
+      '• Video del grupo completo tocando en vivo',
+      '',
+      '¿Nos pueden indicar el siguiente paso para completar la solicitud? ¡Gracias!',
+    ].join('\n'));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}
