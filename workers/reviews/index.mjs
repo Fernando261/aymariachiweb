@@ -69,9 +69,10 @@ async function newSession(configured) {
   return `${value}.${hex(signature)}`;
 }
 
-function redirectToInbox({ cookie, maxAge = sessionSeconds, saved = false, cursor } = {}) {
+function redirectToInbox({ cookie, maxAge = sessionSeconds, saved = false, cursor, view } = {}) {
   const url = new URL(adminPath, 'https://example.invalid');
   if (cursor) url.searchParams.set('cursor', cursor);
+  if (view === 'rejected') url.searchParams.set('view', view);
   if (saved) url.searchParams.set('saved', '1');
   const headers = new Headers({
     location: url.pathname + url.search,
@@ -92,24 +93,29 @@ async function writeReview(kv, review) {
   await kv.put(review.id, JSON.stringify(review), { metadata: { status: review.status } });
 }
 
-async function reviewPage(kv, cursor, onlyApproved) {
+async function reviewPage(kv, cursor, matchesStatus) {
   const result = await kv.list({ prefix: 'review:', limit: pageSize, cursor });
-  const keys = onlyApproved ? result.keys.filter(({ metadata }) => metadata?.status === 'approved') : result.keys;
+  const keys = result.keys.filter(({ metadata }) => !metadata?.status || matchesStatus(metadata.status));
   const reviews = (await Promise.all(keys.map(({ name }) => kv.get(name, 'json'))))
-    .filter((review) => review && (!onlyApproved || review.status === 'approved'));
+    .filter((review) => review && matchesStatus(review.status));
   return { reviews, nextCursor: result.list_complete ? null : result.cursor };
+}
+
+async function nextMatchingPage(kv, cursor, matchesStatus) {
+  // Avanza sobre lotes sin coincidencias con un límite de lecturas por petición.
+  let result;
+  for (let batch = 0; batch < 4; batch++) {
+    result = await reviewPage(kv, cursor, matchesStatus);
+    if (result.reviews.length || !result.nextCursor) break;
+    cursor = result.nextCursor;
+  }
+  return result;
 }
 
 async function publicReviews(request, env, url) {
   if (request.method === 'GET') {
-    let cursor = url.searchParams.get('cursor') || undefined;
-    let result;
-    // Un lote puede contener solo reseñas pendientes. Avanza con un límite de lecturas por petición.
-    for (let batch = 0; batch < 4; batch++) {
-      result = await reviewPage(env.REVIEWS, cursor, true);
-      if (result.reviews.length || !result.nextCursor) break;
-      cursor = result.nextCursor;
-    }
+    const result = await nextMatchingPage(env.REVIEWS, url.searchParams.get('cursor') || undefined,
+      (status) => status === 'approved');
     return json({
       reviews: result.reviews.map(({ id, name, rating, comment, createdAt }) => ({ id, name, rating, comment, createdAt })),
       nextCursor: result.nextCursor,
@@ -151,8 +157,10 @@ async function admin(request, env, url) {
   if (request.method === 'GET') {
     if (!authenticated) return loginPage();
     const cursor = url.searchParams.get('cursor') || undefined;
-    const { reviews, nextCursor } = await reviewPage(env.REVIEWS, cursor, false);
-    return inboxPage(reviews, nextCursor, cursor, url.searchParams.get('saved') === '1');
+    const showRejected = url.searchParams.get('view') === 'rejected';
+    const { reviews, nextCursor } = await nextMatchingPage(env.REVIEWS, cursor,
+      (status) => (status === 'rejected') === showRejected);
+    return inboxPage(reviews, nextCursor, cursor, url.searchParams.get('saved') === '1', showRejected);
   }
   if (request.method !== 'POST') return adminError('Método no permitido.', 405);
   if (request.headers.get('origin') !== url.origin ||
@@ -179,7 +187,7 @@ async function admin(request, env, url) {
   if (!review) return adminError('No se encontró esa reseña.', 404);
   if (!moderation[review.status]?.includes(action)) return adminError('Esa acción ya no está disponible para esta reseña.', 409);
   await writeReview(env.REVIEWS, { ...review, status: action });
-  return redirectToInbox({ saved: true, cursor: fields.get('cursor') });
+  return redirectToInbox({ saved: true, cursor: fields.get('cursor'), view: fields.get('view') });
 }
 
 export default {

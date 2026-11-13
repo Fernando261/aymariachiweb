@@ -99,7 +99,7 @@ export default function App() {
       <a className="skip-link" href="#contenido">Ir al contenido</a>
       <div className="noise-overlay" aria-hidden="true" />
 
-      <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
+      <header className={`site-header ${scrolled ? 'is-scrolled' : ''}${menuOpen ? ' menu-open' : ''}`}>
         <nav className="nav container" aria-label="Navegación principal">
           <a className="brand" href="#inicio" onClick={closeMenu} aria-label="Ay! Mariachi Para Todos, ir al inicio">
             <img className="brand__logo" src={logoUrl} alt="Ay! Mariachi Para Todos" width="1536" height="1024" />
