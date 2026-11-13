@@ -2,12 +2,6 @@ import { useState } from 'react';
 import WhatsAppIcon from './WhatsAppIcon';
 import { buildWhatsAppUrl, company } from '../config/site';
 
-const requestedInChat = [
-  'Número de tarjeta o CLABE para recibir pagos',
-  'Foto formal del grupo completo',
-  'Video del grupo completo tocando en vivo',
-];
-
 export default function MariachiApplication() {
   const [groupName, setGroupName] = useState('');
   const [musicians, setMusicians] = useState('');
@@ -22,11 +16,7 @@ export default function MariachiApplication() {
     '🎶 *Datos del grupo*',
     `Nombre del grupo: ${name}`,
     `Cantidad de elementos: ${count}`,
-    '',
-    '📎 *Datos que compartiremos en este chat*',
-    ...requestedInChat.map((item) => `• ${item}`),
-    '',
-    '¿Nos pueden indicar el siguiente paso para completar la solicitud? ¡Gracias!',
+    'Número de tarjeta o CLABE para recibir pagos:',
   ].join('\n');
   const contactUrl = buildWhatsAppUrl(company.whatsappNumber, message);
 
@@ -47,9 +37,10 @@ export default function MariachiApplication() {
             Cantidad de elementos
             <input type="number" min={1} step={1} inputMode="numeric" required value={musicians} onChange={(event) => setMusicians(event.target.value)} />
           </label>
-          <p id="join-help">Envía la solicitud en el chat oficial de WhatsApp y comparte ahí estos datos y archivos.</p>
+          <p id="join-help">En WhatsApp, completa el número de tarjeta o CLABE para recibir pagos y adjunta estos archivos en el chat oficial.</p>
           <ul className="mariachi-application__requirements">
-            {requestedInChat.map((item) => <li key={item}>{item}</li>)}
+            <li>Foto formal del grupo completo</li>
+            <li>Video del grupo completo tocando en vivo</li>
           </ul>
           {canApply && contactUrl ? (
             <a className="button button--gold" href={contactUrl} target="_blank" rel="noopener noreferrer" aria-describedby="join-help">
