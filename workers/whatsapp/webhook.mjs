@@ -83,12 +83,14 @@ export class ReplyOnce {
 
   async fetch(request) {
     const env = this.env;
-    if (!env.WA_ACCESS_TOKEN || !/^v\d+\.\d+$/.test(env.WA_GRAPH_API_VERSION ?? '') ||
+    const replyTo = env.WA_TEST_REPLY_TO;
+    if ((replyTo !== undefined && !/^[1-9]\d{6,14}$/.test(replyTo)) ||
+        !env.WA_ACCESS_TOKEN || !/^v\d+\.\d+$/.test(env.WA_GRAPH_API_VERSION ?? '') ||
         !/^\d+$/.test(env.WA_PHONE_NUMBER_ID ?? '')) {
       console.error('wa:send_config_invalid');
       return new Response(null, { status: 503 });
     }
-    const recipient = await request.text();
+    const recipient = replyTo ?? await request.text();
     if (!(await this.storage.getAlarm())) {
       await this.storage.setAlarm(Date.now() + 8 * 24 * 60 * 60 * 1000);
     }
