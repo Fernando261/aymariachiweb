@@ -2,6 +2,11 @@
   "name": "aymariachi-whatsapp-test",
   "main": "webhook.mjs",
   "compatibility_date": "2026-11-13",
+  "keep_vars": true,
+  "observability": {
+    "issues": { "enabled": false },
+    "logs": { "enabled": true }
+  },
   "durable_objects": {
     "bindings": [{ "name": "REPLIES", "class_name": "ReplyOnce" }]
   },
