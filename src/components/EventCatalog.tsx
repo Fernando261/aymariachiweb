@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import WhatsAppIcon from './WhatsAppIcon';
+import CatalogCarousel from './CatalogCarousel';
 import { demoMariachis } from '../config/demo-mariachis';
 import { categories, mariachis, type Category, type Mariachi } from '../config/mariachis';
 import {
@@ -35,9 +36,10 @@ function CatalogPhoto({ mariachi, illustrative }: { mariachi: Mariachi; illustra
   return <img src={`${import.meta.env.BASE_URL}${mariachi.photo.replace(/^\/+/, '')}`} alt={alt} loading="lazy" />;
 }
 
-export default function EventCatalog({ category, onCategoryChange }: {
+export default function EventCatalog({ category, onCategoryChange, reducedMotion }: {
   category: Category | null;
   onCategoryChange: (category: Category | null) => void;
+  reducedMotion: boolean;
 }) {
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [service, setService] = useState('');
@@ -54,7 +56,7 @@ export default function EventCatalog({ category, onCategoryChange }: {
   const visible = catalog.filter((item) => item.active && availableServices(item, category).length > 0 &&
     (!category || item.categories.includes(category)));
   const selected = visible.find((item) => item.code === selectedCode);
-  const categoryLabel = categories.find((item) => item.id === category)?.label;
+  const categoryLabel = categories.find((item) => item.id === category)?.label ?? 'Todas las ocasiones';
   // Desde «Todas», el visitante concreta la ocasión antes de preparar la solicitud.
   const [requestCategory, setRequestCategory] = useState<Category | ''>('');
   const occasion = category ?? requestCategory;
@@ -104,22 +106,36 @@ export default function EventCatalog({ category, onCategoryChange }: {
   return (
     <div className="catalog" aria-labelledby="catalog-title">
       <h3 id="catalog-title" tabIndex={-1}>Encuentra tu mariachi</h3>
-      {usingExamples && <p className="catalog-demo"><strong>Perfiles de ejemplo</strong><br />Las fotos son ilustrativas. Usa estas opciones como referencia al preparar tu solicitud.</p>}
       <div className="catalog-filters" role="group" aria-label="Filtrar por ocasión">
         <button type="button" aria-pressed={category === null} onClick={() => { reset(); onCategoryChange(null); }}>Todas</button>
         {categories.map((item) => <button type="button" key={item.id} aria-pressed={category === item.id} onClick={() => { reset(); onCategoryChange(item.id); }}>{item.label}</button>)}
       </div>
-      <p role="status">{categoryLabel ?? 'Todas las ocasiones'} · {visible.length} {visible.length === 1 ? 'opción' : 'opciones'}</p>
+      {(selected || !visible.length) && <p role="status">{categoryLabel}</p>}
       {!contactUrl && <p role="status">Las solicitudes por WhatsApp aún no están disponibles.</p>}
       {!selected ? (
-        visible.length ? <ul className="catalog-list">{visible.map((item) => <li key={item.code} className="catalog-card">
-          <CatalogPhoto mariachi={item} illustrative={usingExamples} />
-          <h4>{item.alias}</h4>
-          {item.description && <p>{item.description}</p>}
-          {item.zone && <p>Zona: {item.zone}</p>}
-          <p>Servicios disponibles: {availableServices(item, category).map((rate) => rate.name).join(', ')}</p>
-          <button type="button" ref={(node) => { if (node) optionButtons.current.set(item.code, node); else optionButtons.current.delete(item.code); }} onClick={() => { setService(''); setRequestCategory(''); setSelectedCode(item.code); }}>Elegir {item.alias}</button>
-        </li>)}</ul> : <div className="catalog-card"><h4>Estamos preparando las opciones</h4><p>Aún no hay mariachis disponibles en este listado. Puedes cambiar de categoría o <a href="#contacto">contactarnos</a> para hablar de tu evento.</p></div>
+        visible.length ? (
+          <CatalogCarousel key={category ?? 'all'} count={visible.length} categoryLabel={categoryLabel} reducedMotion={reducedMotion}>
+            {visible.map((item) => (
+              <li key={item.code} className="carousel-slide">
+                <article className="catalog-card carousel-card">
+                  <div className="carousel-photo">
+                    <CatalogPhoto mariachi={item} illustrative={usingExamples} />
+                  </div>
+                  <div className="carousel-card-copy">
+                    <h4>{item.alias}</h4>
+                    {item.zone && <p className="carousel-zone">{item.zone}</p>}
+                    {item.description && <p>{item.description}</p>}
+                    <p>Servicios disponibles: {availableServices(item, category).map((rate) => rate.name).join(', ')}</p>
+                    <button className="button button--gold" type="button"
+                      ref={(node) => { if (node) optionButtons.current.set(item.code, node); else optionButtons.current.delete(item.code); }}
+                      onClick={() => { setService(''); setRequestCategory(''); setSelectedCode(item.code); }}
+                    >Elegir {item.alias}</button>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </CatalogCarousel>
+        ) : <div className="catalog-card"><h4>Estamos preparando las opciones</h4><p>Aún no hay mariachis disponibles en este listado. Puedes cambiar de categoría o <a href="#contacto">contactarnos</a> para hablar de tu evento.</p></div>
       ) : (
         <div className="catalog-card">
           <button type="button" className="catalog-back" onClick={() => { const code = selected.code; reset(); requestAnimationFrame(() => optionButtons.current.get(code)?.focus()); }}>Volver al listado</button>
@@ -175,6 +191,7 @@ export default function EventCatalog({ category, onCategoryChange }: {
           {canRequest && contactUrl ? <a className="button button--gold" href={contactUrl} target="_blank" rel="noopener noreferrer" aria-describedby="request-help"><WhatsAppIcon /> Enviar solicitud</a> : <button className="button button--gold" type="button" disabled aria-describedby="request-help"><WhatsAppIcon /> Enviar solicitud</button>}
         </div>
       )}
+      {usingExamples && <p className="catalog-demo"><strong>Perfiles de ejemplo</strong> · Las fotos son ilustrativas.</p>}
     </div>
   );
 }

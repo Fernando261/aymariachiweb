@@ -24,12 +24,9 @@ export function usePageMotion(reducedMotion: boolean) {
     const scope = createScope({ root: container }).add(() => {
       const timeline = createTimeline({ defaults: { ease: 'out(3)' } });
       timeline
-        .add('.hero .eyebrow', { opacity: [0, 1], y: [16, 0], duration: 650 }, 120)
-        .add('.hero-title .line', { opacity: [0, 1], y: [70, 0], duration: 1100, delay: stagger(140) }, 180)
-        .add('.hero-description', { opacity: [0, 1], y: [28, 0], duration: 800 }, 650)
-        .add('.hero-actions', { opacity: [0, 1], y: [22, 0], duration: 750 }, 820)
-        .add('.hero-art', { opacity: [0, 1], scale: [0.84, 1], duration: 1350 }, 220)
-        .add('.hero-bottom', { opacity: [0, 1], duration: 700 }, 1100);
+        .add('.hero-logo', { opacity: [0, 1], y: [8, 0], duration: 520 }, 0)
+        .add('.hero-title .line', { opacity: [0, 1], y: [15, 0], duration: 460, delay: stagger(70) }, 90)
+        .add('.hero-description, .hero-actions', { opacity: [0, 1], y: [8, 0], duration: 420 }, 190);
     });
 
     // Animación Anime.js al entrar en pantalla; evita ejecutar en cada scroll.
