@@ -101,9 +101,9 @@ export default function App() {
         <nav className="nav container" aria-label="Navegación principal">
           <div className={`nav-links ${menuOpen ? 'is-open' : ''}`} id="nav-principal">
             <a href="#guia" onClick={closeMenu}>Guía para tu evento</a>
-            <a href="#opiniones" onClick={closeMenu}>Opiniones</a>
             <a href="#experiencias" onClick={closeMenu}>Experiencias</a>
             <a href="#nosotros" onClick={closeMenu}>Nosotros</a>
+            <a href="#opiniones" onClick={closeMenu}>Opiniones</a>
             <a href="#contacto" onClick={closeMenu} className="mobile-contact">Contáctanos</a>
           </div>
           <a className="nav-cta" href="#contacto">Hablemos <ArrowUpRight size={16} /></a>
@@ -149,8 +149,6 @@ export default function App() {
           </div>
         </div>
 
-        <Reviews />
-
         {/* EXPERIENCIAS */}
         <section className="section experiences" id="experiencias" aria-labelledby="experiences-title">
           <div className="container">
@@ -190,6 +188,8 @@ export default function App() {
             <p className="section-body">En <strong>Ay! Mariachi Para Todos</strong> acercamos la música de mariachi a quienes quieren celebrar con una tradición que se vive en familia, entre amigos y en comunidad.</p>
           </div>
         </section>
+
+        <Reviews />
 
         {/* CONTACTO / REDES */}
         <section className="contact-section" id="contacto" aria-labelledby="contact-title">
