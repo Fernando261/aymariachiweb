@@ -7,7 +7,7 @@ Landing page premium y responsive para presentar **Ay! Mariachi Para Todos** com
 - **React 19 + TypeScript + Vite**: estructura por componentes y build rápido.
 - **CSS puro** en `src/styles.css`: todo el diseño en un archivo separado del JSX.
 - **Anime.js 4**: presentación de portada escalonada y entradas por sección al hacer scroll.
-- **Three.js + React Three Fiber + Drei**: trompeta dorada 3D, iluminación, destellos y respuesta al puntero (sin modelos externos ni pago a Spline).
+- **Carrusel CSS 3D** en la portada, con deslizamiento, flechas y teclado.
 - **Lucide React**: iconografía escalable.
 
 ## Cómo ejecutar (Windows / PowerShell)
@@ -51,7 +51,7 @@ ay-mariachi-web/
     │   └── site.ts                     # ÚNICO LUGAR para configurar redes y contacto
     └── components/
         ├── EventCatalog.tsx            # Catálogo, selección y solicitud por WhatsApp
-        ├── MariachiScene.tsx           # Trompeta 3D en React Three Fiber
+        ├── CatalogCarousel.tsx         # Navegación horizontal del catálogo
         └── Motion.tsx                  # Anime.js + detección de movimiento reducido
 ```
 
@@ -62,46 +62,6 @@ Edita **`src/config/site.ts`** y rellena los valores de `whatsappNumber`, `insta
 - `whatsappNumber` debe ser un número con indicativo internacional, **solo dígitos**, por ejemplo `5213312345678` (solo ejemplo ficticio; no lo uses en producción).
 - Las redes deben llevar **las URLs reales y oficiales** de la empresa.
 - Los contactos que estén vacíos se muestran como tarjetas no clicables y se indica que están pendientes; nunca enviarán a perfiles inventados.
-
-## Reemplazar la trompeta por una escena hecha en Spline (opcional)
-
-Ya hay un 3D funcional hecho específicamente para Ay! Mariachi. Si más adelante tienes una escena propia en Spline, puedes sustituir la trompeta así:
-
-1. Abre tu proyecto en https://spline.design y selecciona **Export → Code → React**.
-2. Instala lo que indica la documentación oficial:
-
-```powershell
-npm install @splinetool/react-spline @splinetool/runtime
-```
-
-3. Crea `src/components/SplineStage.tsx` con este contenido, cambiando la URL por **TU** URL exportada:
-
-```tsx
-import Spline from '@splinetool/react-spline';
-
-export default function SplineStage() {
-  return (
-    <div className="scene-canvas">
-      <Spline scene="https://prod.spline.design/TU_ID/scene.splinecode" />
-      <p className="spline-credit">
-        <a href="https://app.spline.design" target="_blank" rel="noopener noreferrer">Abrir en Spline</a>
-        {' · '}
-        <a href="https://spline.design" target="_blank" rel="noopener noreferrer">Made with Spline</a>
-      </p>
-    </div>
-  );
-}
-```
-
-4. En `src/App.tsx` cambia `import MariachiScene ...` por `import SplineStage from './components/SplineStage';` y `<MariachiScene reducedMotion={reducedMotion} />` por `<SplineStage />`.
-5. Agrega este CSS:
-
-```css
-.spline-credit { position: absolute; bottom: 10px; right: 12px; z-index: 5; font-size: 9px; color: #d8b76a; }
-.spline-credit a { text-decoration: underline; }
-```
-
-Usa una escena que hayas creado o cuya licencia permita reutilización, y conserva la atribución correspondiente. **No se ha colocado ninguna escena ajena fingiendo que es propiedad de la empresa.**
 
 ## Diseño adaptable y accesibilidad
 
@@ -119,7 +79,7 @@ Usa una escena que hayas creado o cuya licencia permita reutilización, y conser
 
 ## Catálogo manual y solicitudes (W3)
 
-Las tarjetas Serenatas, Celebraciones y Eventos especiales llevan a `#guia`, enfocan el título del catálogo y aplican el filtro. Los botones de categoría señalan la opción activa y «Todas» recupera el listado completo. Tras elegir un grupo se muestran sus cantidades admitidas, las duraciones configuradas y un resumen. «Volver al listado» devuelve el foco al grupo. Cambiar la categoría o el grupo limpia las elecciones; volver a pulsar una tarjeta de Experiencias también vuelve al listado filtrado.
+Las tarjetas Serenatas, Celebraciones y Eventos especiales llevan a `#guia`, enfocan el título del catálogo y aplican el filtro. Los botones de categoría señalan la opción activa y «Todas» recupera el listado completo. El carrusel admite deslizamiento y navegación con botones o teclas de flecha. Tras elegir un grupo se muestran sus cantidades admitidas, las duraciones configuradas y un resumen. «Volver al listado» devuelve el foco al grupo. Cambiar la categoría o el grupo limpia las elecciones; volver a pulsar una tarjeta de Experiencias también vuelve al listado filtrado.
 
 ### Agregar opciones aprobadas
 

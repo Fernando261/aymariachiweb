@@ -42,7 +42,7 @@ for (const path of ['/', '/aymariachiweb/']) test(`build real: perfiles de ejemp
       ((id !== 'serenatas' && id !== 'misas') || mariachi.musicianCounts.includes(5)));
     await expect(catalog(page).locator('.catalog-list h4')).toHaveText(examples.map(({ alias }) => alias));
   }
-  await expect(page.locator('.brand__logo')).toHaveJSProperty('naturalWidth', 1536);
+  await expect(page.locator('.hero-logo img')).toHaveJSProperty('naturalWidth', 1536);
 });
 
 for (const width of [320, 390, 1440]) test(`filtrado, cambio de grupo, resumen y WhatsApp ${width}px`, async ({ page }) => {
@@ -203,45 +203,31 @@ test('Serenata y misa fuera del Periférico aplica el mínimo y deja el total po
   await expect(area.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled();
 });
 
-for (const width of [320, 1440]) {
-  test(`solicitud de ingreso de mariachi desde la navegación a ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 });
+for (const width of [390, 1440]) {
+  test(`portada, guía y carrusel a ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 720 });
     await page.goto('/');
-    if (width === 320) await page.getByRole('button', { name: 'Abrir menú' }).click();
-    await page.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Únete', exact: true }).click();
-    await expect(page).toHaveURL(/#unete$/);
-    if (width === 320) await expect(page.getByRole('button', { name: 'Abrir menú' })).toHaveAttribute('aria-expanded', 'false');
-
-    const section = page.getByRole('region', { name: 'Únete con tu mariachi.' });
-    const name = section.getByLabel('Nombre del grupo');
-    const count = section.getByLabel('Cantidad de elementos');
-    const submit = 'Enviar solicitud para unirme';
-    await expect(section.getByRole('button', { name: submit })).toBeDisabled();
-    await name.fill('   ');
-    await count.fill('7');
-    await expect(section.getByRole('button', { name: submit })).toBeDisabled();
-    await name.fill('  Mariachi Sol & Luna  ');
-    for (const invalid of ['0', '-2', '2.5']) {
-      await count.fill(invalid);
-      await expect(section.getByRole('button', { name: submit })).toBeDisabled();
-    }
-    await count.fill('7');
-    const link = section.getByRole('link', { name: submit });
-    const url = new URL((await link.getAttribute('href'))!);
-    expect(url.origin).toBe('https://wa.me');
-    expect(url.pathname).toBe('/523348265069');
-    expect(url.searchParams.get('text')).toBe([
-      'Solicitud de grupo · AYM-02',
-      '🎺 *Ay! Mariachi Para Todos*',
-      '¡Hola! Queremos unir nuestro mariachi al catálogo.',
-      '',
-      '🎶 *Datos del grupo*',
-      'Nombre del grupo: Mariachi Sol & Luna',
-      'Cantidad de elementos: 7',
-      'Número de tarjeta o CLABE para recibir pagos:',
-    ].join('\n'));
-    await expect(section.getByText('Foto formal del grupo completo', { exact: true })).toBeVisible();
-    await expect(section.getByText('Video del grupo completo tocando en vivo', { exact: true })).toBeVisible();
+    const guide = page.getByRole('region', { name: 'Guía para tu evento.' });
+    const logo = page.locator('.hero-logo img');
+    const slogan = page.getByRole('heading', { level: 1 });
+    await expect(logo).toBeVisible();
+    expect((await logo.boundingBox())!.y).toBeLessThan((await slogan.boundingBox())!.y);
+    expect((await guide.boundingBox())!.y).toBeLessThan(460);
+    await expect(page.locator('header img, .scene-canvas, #unete, .about-visual')).toHaveCount(0);
+    await expect(page.locator('a[href="#unete"]')).toHaveCount(0);
+    const carousel = guide.getByRole('region', { name: 'Carrusel de mariachis' });
+    const track = carousel.getByRole('list', { name: 'Grupos de mariachi' });
+    await expect(carousel.getByText('1 de 3', { exact: true })).toBeVisible();
+    await carousel.getByRole('button', { name: 'Grupo siguiente' }).click();
+    await expect(carousel.getByText('2 de 3', { exact: true })).toBeVisible();
+    await track.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(carousel.getByText('3 de 3', { exact: true })).toBeVisible();
+    await expect(carousel.getByRole('button', { name: 'Grupo siguiente' })).toBeDisabled();
+    await carousel.getByRole('button', { name: 'Grupo anterior' }).click();
+    await expect(carousel.getByText('2 de 3', { exact: true })).toBeVisible();
+    await guide.getByText('Precios y condiciones del servicio', { exact: true }).click();
+    await expect(guide.getByText('Depósito al confirmar:', { exact: false })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }

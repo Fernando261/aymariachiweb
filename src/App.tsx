@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import {
-  ArrowDown, ArrowRight, ArrowUpRight, CalendarHeart, ChevronRight,
+  ArrowDown, ArrowUpRight, CalendarHeart, ChevronRight,
   Facebook, Heart, Instagram, Menu, MessageCircle, Music2,
   Sparkles as SparklesIcon, Star, X,
 } from 'lucide-react';
-import MariachiScene from './components/MariachiScene';
 import EventCatalog from './components/EventCatalog';
-import MariachiApplication from './components/MariachiApplication';
 import Reviews from './components/Reviews';
 import { type Category } from './config/mariachis';
 import { usePageMotion, useReducedMotion } from './components/Motion';
@@ -101,15 +99,11 @@ export default function App() {
 
       <header className={`site-header ${scrolled ? 'is-scrolled' : ''}${menuOpen ? ' menu-open' : ''}`}>
         <nav className="nav container" aria-label="Navegación principal">
-          <a className="brand" href="#inicio" onClick={closeMenu} aria-label="Ay! Mariachi Para Todos, ir al inicio">
-            <img className="brand__logo" src={logoUrl} alt="Ay! Mariachi Para Todos" width="1536" height="1024" />
-          </a>
           <div className={`nav-links ${menuOpen ? 'is-open' : ''}`} id="nav-principal">
-            <a href="#nosotros" onClick={closeMenu}>Nosotros</a>
-            <a href="#experiencias" onClick={closeMenu}>Experiencias</a>
             <a href="#guia" onClick={closeMenu}>Guía para tu evento</a>
             <a href="#opiniones" onClick={closeMenu}>Opiniones</a>
-            <a href="#unete" onClick={closeMenu}>Únete</a>
+            <a href="#experiencias" onClick={closeMenu}>Experiencias</a>
+            <a href="#nosotros" onClick={closeMenu}>Nosotros</a>
             <a href="#contacto" onClick={closeMenu} className="mobile-contact">Contáctanos</a>
           </div>
           <a className="nav-cta" href="#contacto">Hablemos <ArrowUpRight size={16} /></a>
@@ -120,83 +114,48 @@ export default function App() {
       </header>
 
       <main id="contenido">
-        {/* HERO CINEMATOGRÁFICO */}
-        <section className="hero" aria-labelledby="hero-title">
-          <div className="hero-ambient hero-ambient--one" aria-hidden="true" />
-          <div className="hero-ambient hero-ambient--two" aria-hidden="true" />
+        <div className="hero">
           <div className="hero-grid" aria-hidden="true" />
           <div className="container hero-layout">
-            <div className="hero-copy">
-              <p className="eyebrow"><span className="eyebrow-rule" /> UNA TRADICIÓN QUE NUNCA DEJA DE EMOCIONAR</p>
+            <section className="hero-copy" aria-labelledby="hero-title">
+              <div className="hero-logo">
+                <img src={logoUrl} alt="Ay! Mariachi Para Todos" width="1536" height="1024" fetchPriority="high" />
+              </div>
               <h1 className="hero-title" id="hero-title">
                 <span className="line">Que suene</span>
                 <span className="line line--gold"><em>lo inolvidable.</em></span>
               </h1>
-              <p className="hero-description">Hay momentos que no se cuentan, <strong>se cantan.</strong> Llevamos la esencia del mariachi mexicano a las historias que merecen quedarse para siempre.</p>
+              <p className="hero-description">Mariachis para serenatas, bodas y celebraciones en Guadalajara.</p>
               <div className="hero-actions">
-                <a className="button button--gold" href="#experiencias">Descubre la experiencia <ArrowUpRight size={19} /></a>
-                <a className="text-link" href="#nosotros">Conócenos <span className="text-link__circle"><ArrowRight size={16} /></span></a>
+                <a className="button button--gold" href="#guia">Planea tu evento <ArrowDown size={17} aria-hidden="true" /></a>
               </div>
-              <div className="hero-bottom">
-                <span className="hero-location"><span className="small-diamond" /> HECHO CON EL ALMA DE JALISCO</span>
-                <a href="#nosotros" className="scroll-prompt" aria-label="Desplazarse a la sección Nosotros"><ArrowDown size={16} /> DESLIZA PARA DESCUBRIR</a>
-              </div>
-            </div>
-            <div className="hero-art" aria-hidden="false">
-              <div className="hero-art__halo" aria-hidden="true" />
-              <div className="hero-art__ring hero-art__ring--one" aria-hidden="true" />
-              <div className="hero-art__ring hero-art__ring--two" aria-hidden="true" />
-              <span className="hero-art__note hero-art__note--a" aria-hidden="true">♪</span>
-              <span className="hero-art__note hero-art__note--b" aria-hidden="true">♫</span>
-              <MariachiScene reducedMotion={reducedMotion} />
-              <div className="hero-art__stamp" aria-hidden="true"><span>CON ORGULLO</span><strong>GDL</strong><span>JALISCO · MX</span></div>
-              <div className="hero-art__caption"><span>FIG. 01</span><span>EL SONIDO DE MÉXICO</span></div>
-            </div>
-          </div>
-          <div className="hero-bottom-line" aria-hidden="true" />
-        </section>
+            </section>
 
-        {/* MARQUESINA */}
-        <div className="marquee" aria-label="Tradición, emoción y momentos inolvidables">
-          <div className="marquee__track" aria-hidden="true">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <span className="marquee__item" key={i}>TRADICIÓN <span>✦</span> EMOCIÓN <span>✦</span> MÚSICA CON ALMA <span>✦</span> MOMENTOS INOLVIDABLES <span>✦</span></span>
-            ))}
+            <section className="booking-guide" id="guia" aria-labelledby="guide-title">
+              <h2 className="section-title" id="guide-title">Guía para <em>tu evento.</em></h2>
+              <EventCatalog key={catalogVisit} category={category} onCategoryChange={setCategory} reducedMotion={reducedMotion} />
+              <details className="booking-rates">
+                <summary>Precios y condiciones del servicio</summary>
+                <dl className="guide-rates">
+                  {groupRates.map((rate) => (
+                    <div key={rate.musicians}><dt>{rate.name}</dt><dd>{formatMxn(rate.price)}</dd></div>
+                  ))}
+                  <div><dt>{serenadeAndMass.name} · {serenadeAndMass.musicians} músicos</dt><dd>{formatMxn(serenadeAndMass.price)}</dd></div>
+                </dl>
+                <p className="section-body">El servicio se realiza en tandas de {setMinutes} minutos. Fuera del Periférico, el mínimo es de {outsideMinimumMinutes / 60} horas.</p>
+                <p className="section-body">Depósito al confirmar: <strong>{formatMxn(confirmationDeposit)}</strong>.</p>
+              </details>
+            </section>
           </div>
         </div>
 
-        {/* EMPRESA */}
-        <section className="section about" id="nosotros" aria-labelledby="about-title">
-          <div className="container about-grid">
-            <div className="about-visual" data-reveal>
-              <div className="about-visual__frame">
-                <span className="about-visual__corner about-visual__corner--tl" />
-                <span className="about-visual__corner about-visual__corner--br" />
-                <img src={logoUrl} alt="Logo oficial dorado de Ay! Mariachi Para Todos" className="about-logo" loading="lazy" />
-                <span className="about-visual__signature">NUESTRAS RAÍCES · NUESTRA PASIÓN</span>
-              </div>
-              <div className="about-visual__floating"><Star size={19} fill="currentColor" /><span>TRADICIÓN<br />QUE CONECTA</span></div>
-            </div>
-            <div className="about-copy" data-reveal>
-              <p className="section-kicker">01 / NUESTRA ESENCIA</p>
-              <Ornament className="ornament--left" />
-              <h2 className="section-title" id="about-title">El mariachi no solo se escucha. <em>Se siente.</em></h2>
-              <p className="section-body">En <strong>Ay! Mariachi Para Todos</strong> creemos que la música tiene el poder de transformar cualquier instante en una historia memorable.</p>
-              <p className="section-body">Nacemos de una idea sencilla: acercar la riqueza de nuestra tradición a más personas, uniendo la calidez del mariachi con las posibilidades de la tecnología.</p>
-              <div className="about-values">
-                <div><span className="about-values__icon"><Heart size={20} /></span><span><strong>Corazón mexicano</strong><small>Autenticidad en cada nota</small></span></div>
-                <div><span className="about-values__icon"><SparklesIcon size={20} /></span><span><strong>Una nueva forma de conectar</strong><small>Tradición que mira al futuro</small></span></div>
-              </div>
-              <a href="#guia" className="inline-link">Prepara tu evento <ArrowUpRight size={17} /></a>
-            </div>
-          </div>
-        </section>
+        <Reviews />
 
         {/* EXPERIENCIAS */}
         <section className="section experiences" id="experiencias" aria-labelledby="experiences-title">
           <div className="container">
             <div className="section-heading" data-reveal>
-              <div><p className="section-kicker">02 / HAGAMOS HISTORIA</p><h2 className="section-title" id="experiences-title">Cada ocasión merece <em>su propia canción.</em></h2></div>
+              <h2 className="section-title" id="experiences-title">Cada ocasión merece <em>su propia canción.</em></h2>
               <p className="section-heading__aside">Desde un pequeño gesto de amor hasta una gran celebración. Hay un mariachi para cada emoción.</p>
             </div>
             <div className="experience-grid">
@@ -225,48 +184,17 @@ export default function App() {
           </div>
         </section>
 
-        {/* MANIFIESTO */}
-        <section className="manifesto" aria-label="Nuestro manifiesto">
-          <div className="manifesto__lights" aria-hidden="true" />
-          <div className="container manifesto__content" data-reveal>
-            <Ornament />
-            <span className="manifesto__eyebrow">NUESTRA RAZÓN DE SER</span>
-            <p>Porque algunas historias<br />merecen contarse <em>con música.</em></p>
-            <div className="manifesto__signature">Ay! Mariachi Para Todos <span>✦</span></div>
+        <section className="section about" id="nosotros" aria-labelledby="about-title">
+          <div className="container about-copy" data-reveal>
+            <h2 className="section-title" id="about-title">El mariachi no solo se escucha. <em>Se siente.</em></h2>
+            <p className="section-body">En <strong>Ay! Mariachi Para Todos</strong> acercamos la música de mariachi a quienes quieren celebrar con una tradición que se vive en familia, entre amigos y en comunidad.</p>
           </div>
         </section>
-
-        {/* GUÍA Y CATÁLOGO */}
-        <section className="section guide-section" id="guia" aria-labelledby="guide-title">
-          <div className="container guide-grid">
-            <div className="guide-copy" data-reveal>
-              <p className="section-kicker">03 / PREPARA TU MOMENTO</p>
-              <Ornament className="ornament--left" />
-              <h2 className="section-title" id="guide-title">Guía para <em>tu evento.</em></h2>
-              <p className="section-body">Elige la ocasión, el mariachi y el servicio. Agrega la fecha, hora y ubicación para preparar tu solicitud por WhatsApp.</p>
-              <h3 className="guide-rates-title">Precios del servicio</h3>
-              <dl className="guide-rates">
-                {groupRates.map((rate) => (
-                  <div key={rate.musicians}><dt>{rate.name}</dt><dd>{formatMxn(rate.price)}</dd></div>
-                ))}
-                <div><dt>{serenadeAndMass.name} · {serenadeAndMass.musicians} músicos</dt><dd>{formatMxn(serenadeAndMass.price)}</dd></div>
-              </dl>
-              <p className="section-body">El servicio se realiza en tandas de {setMinutes} minutos. Fuera del Periférico, el servicio es de mínimo {outsideMinimumMinutes / 60} horas.</p>
-              <p className="section-body">Al confirmar, se hace un depósito de <strong>{formatMxn(confirmationDeposit)}</strong>.</p>
-            </div>
-            <EventCatalog key={catalogVisit} category={category} onCategoryChange={setCategory} />
-          </div>
-        </section>
-
-        <Reviews />
-
-        <MariachiApplication />
 
         {/* CONTACTO / REDES */}
         <section className="contact-section" id="contacto" aria-labelledby="contact-title">
           <div className="container">
             <div className="contact-intro" data-reveal>
-              <p className="section-kicker">04 / SIGAMOS EN CONTACTO</p>
               <Ornament />
               <h2 id="contact-title">¿Tu historia necesita <em>mariachi?</em></h2>
               <p>Queremos ser parte de ese momento. Conoce nuestros medios de contacto y acompáñanos en nuestras redes sociales.</p>
@@ -289,7 +217,7 @@ export default function App() {
             <img src={logoUrl} alt="Ay! Mariachi Para Todos" loading="lazy" />
             <p>La tradición que nos une.<br />La música que nos mueve.</p>
           </div>
-          <div className="footer-column"><h3>EXPLORA</h3><a href="#inicio">Inicio <ChevronRight size={14} /></a><a href="#nosotros">Nuestra esencia <ChevronRight size={14} /></a><a href="#experiencias">Experiencias <ChevronRight size={14} /></a><a href="#guia">Guía para tu evento <ChevronRight size={14} /></a><a href="#unete">Únete con tu mariachi <ChevronRight size={14} /></a></div>
+          <div className="footer-column"><h3>EXPLORA</h3><a href="#inicio">Inicio <ChevronRight size={14} /></a><a href="#nosotros">Nuestra esencia <ChevronRight size={14} /></a><a href="#experiencias">Experiencias <ChevronRight size={14} /></a><a href="#guia">Guía para tu evento <ChevronRight size={14} /></a><a href="#opiniones">Opiniones <ChevronRight size={14} /></a></div>
           <div className="footer-column"><h3>HABLEMOS</h3><a href="#contacto">Contacto <ChevronRight size={14} /></a>{whatsApp && <a href={whatsApp} target="_blank" rel="noopener noreferrer">WhatsApp <ChevronRight size={14} /></a>}{company.instagram && <a href={company.instagram} target="_blank" rel="noopener noreferrer">Instagram <ChevronRight size={14} /></a>}<span>Guadalajara, Jalisco, México</span></div>
           <div className="footer-quote"><span>✦</span><p>Que nunca falte una canción para celebrar la vida.</p></div>
         </div>
